@@ -20,7 +20,7 @@ function authenticate_method($method) {
 
 	// method must be exposed
 	if (!isset($API_METHODS[$method])) {
-		throw new APIException(elgg_echo('APIException:MethodCallNotImplemented', array($method)));
+		throw new APIException(elgg_echo('APIException:MethodCallNotImplemented', [$method]));
 	}
 
 	// check API authentication if required
@@ -32,11 +32,11 @@ function authenticate_method($method) {
 	}
 
 	$user_pam = new ElggPAM('user');
-	$user_auth_result = $user_pam->authenticate(array());
+	$user_auth_result = $user_pam->authenticate([]);
 
 	// check if user authentication is required
 	if ($API_METHODS[$method]["require_user_auth"] == true) {
-		if ($user_auth_result == false) {
+		if (!$user_auth_result) {
 			throw new APIException($user_pam->getFailureMessage(), ErrorResult::$RESULT_FAIL_AUTHTOKEN);
 		}
 	}
@@ -59,7 +59,7 @@ function execute_method($method) {
 
 	// method must be exposed
 	if (!isset($API_METHODS[$method])) {
-		$msg = elgg_echo('APIException:MethodCallNotImplemented', array($method));
+		$msg = elgg_echo('APIException:MethodCallNotImplemented', [$method]);
 		throw new APIException($msg);
 	}
 
@@ -68,22 +68,19 @@ function execute_method($method) {
 	if (isset($API_METHODS[$method]["function"])) {
 		$function = $API_METHODS[$method]["function"];
 		// allow array version of static callback
-		if (is_array($function)
-				&& isset($function[0], $function[1])
-				&& is_string($function[0])
-				&& is_string($function[1])) {
+		if (is_array($function) && isset($function[0], $function[1]) && is_string($function[0]) && is_string($function[1])) {
 			$function = "{$function[0]}::{$function[1]}";
 		}
 	}
 	if (!is_string($function) || !is_callable($function)) {
-		$msg = elgg_echo('APIException:FunctionDoesNotExist', array($method));
+		$msg = elgg_echo('APIException:FunctionDoesNotExist', [$method]);
 		throw new APIException($msg);
 	}
 
 	// check http call method
 	if (strcmp(get_call_method(), $API_METHODS[$method]["call_method"]) != 0) {
-		$msg = elgg_echo('CallException:InvalidCallMethod', array($method,
-		$API_METHODS[$method]["call_method"]));
+		$msg = elgg_echo('CallException:InvalidCallMethod', [$method,
+		$API_METHODS[$method]["call_method"]]);
 		throw new CallException($msg);
 	}
 
@@ -97,8 +94,18 @@ function execute_method($method) {
 	// Execute function: Construct function and calling parameters
 	$serialised_parameters = trim($serialised_parameters, ", ");
 
-	// @todo remove the need for eval()
-	$result = eval("return $function($serialised_parameters);");
+	// Sadly we probably can't get rid of this eval() in 2.x. Doing so would involve
+	// replacing serialise_parameters(), which does a bunch of weird stuff we need to
+	// stay BC with 2.x. There are tests for a lot of these quirks in ElggCoreWebServicesApiTest
+	// particularly in testSerialiseParametersCasting().
+	$arguments = eval("return [$serialised_parameters];");
+
+	if ($API_METHODS[$method]['assoc']) {
+		$argument = array_combine(_elgg_ws_get_parameter_names($method), $arguments);
+		$result = call_user_func($function, $argument);
+	} else {
+		$result = call_user_func_array($function, $arguments);
+	}
 
 	$result = elgg_trigger_plugin_hook('rest:output', $method, $parameters, $result);
 	
@@ -109,13 +116,13 @@ function execute_method($method) {
 	}
 
 	if ($result === false) {
-		$msg = elgg_echo('APIException:FunctionParseError', array($function, $serialised_parameters));
+		$msg = elgg_echo('APIException:FunctionParseError', [$function, $serialised_parameters]);
 		throw new APIException($msg);
 	}
 
-	if ($result === NULL) {
+	if ($result === null) {
 		// If no value
-		$msg = elgg_echo('APIException:FunctionNoReturn', array($function, $serialised_parameters));
+		$msg = elgg_echo('APIException:FunctionNoReturn', [$function, $serialised_parameters]);
 		throw new APIException($msg);
 	}
 
@@ -147,7 +154,7 @@ function get_call_method() {
 function get_parameters_for_method($method) {
 	global $API_METHODS;
 
-	$sanitised = array();
+	$sanitised = [];
 
 	// if there are parameters, sanitize them
 	if (isset($API_METHODS[$method]['parameters'])) {
@@ -171,14 +178,11 @@ function get_parameters_for_method($method) {
  * Get POST data
  * Since this is called through a handler, we need to manually get the post data
  *
- * @return POST data as string encoded as multipart/form-data
+ * @return false|string POST data as string encoded as multipart/form-data
  * @access private
  */
 function get_post_data() {
-
-	$postdata = file_get_contents('php://input');
-
-	return $postdata;
+	return file_get_contents('php://input');
 }
 
 /**
@@ -204,14 +208,13 @@ function verify_parameters($method, $parameters) {
 	foreach ($API_METHODS[$method]['parameters'] as $key => $value) {
 		// this tests the expose structure: must be array to describe parameter and type must be defined
 		if (!is_array($value) || !isset($value['type'])) {
-
-			$msg = elgg_echo('APIException:InvalidParameter', array($key, $method));
+			$msg = elgg_echo('APIException:InvalidParameter', [$key, $method]);
 			throw new APIException($msg);
 		}
 
 		// Check that the variable is present in the request if required
 		if ($value['required'] && !array_key_exists($key, $parameters)) {
-			$msg = elgg_echo('APIException:MissingParameterInMethod', array($key, $method));
+			$msg = elgg_echo('APIException:MissingParameterInMethod', [$key, $method]);
 			throw new APIException($msg);
 		}
 	}
@@ -220,15 +223,40 @@ function verify_parameters($method, $parameters) {
 }
 
 /**
- * Serialize an array of parameters for an API method call
+ * Get the names of a method's parameters
+ *
+ * @param string $method the api method to get the params for
+ * @return string[]
+ * @access private
+ */
+function _elgg_ws_get_parameter_names($method) {
+	global $API_METHODS;
+
+	if (!isset($API_METHODS[$method]["parameters"])) {
+		return [];
+	}
+
+	return array_keys($API_METHODS[$method]["parameters"]);
+}
+
+/**
+ * Serialize an array of parameters for an API method call, applying transformations
+ * to values depending on the declared parameter type, and returning a string of PHP
+ * code representing the contents of a PHP array literal.
+ *
+ * A leading comma needs to be removed from the output.
+ *
+ * @see \ElggCoreWebServicesApiTest::testSerialiseParametersCasting
  *
  * @param string $method     API method name
  * @param array  $parameters Array of parameters
  *
- * @return string or exception
+ * @return string or exception E.g. ',"foo",2.1'
  * @throws APIException
  * @since 1.7.0
  * @access private
+ *
+ * @todo in 3.0 this should return an array of parameter values instead of a string of code.
  */
 function serialise_parameters($method, $parameters) {
 	global $API_METHODS;
@@ -240,18 +268,17 @@ function serialise_parameters($method, $parameters) {
 
 	$serialised_parameters = "";
 	foreach ($API_METHODS[$method]['parameters'] as $key => $value) {
-
 		// avoid warning on parameters that are not required and not present
 		if (!isset($parameters[$key])) {
+			$serialised_parameters .= ',null';
 			continue;
 		}
 
 		// Set variables casting to type.
-		switch (strtolower($value['type']))
-		{
+		switch (strtolower($value['type'])) {
 			case 'int':
 			case 'integer' :
-				$serialised_parameters .= "," . (int)trim($parameters[$key]);
+				$serialised_parameters .= "," . (int) trim($parameters[$key]);
 				break;
 			case 'bool':
 			case 'boolean':
@@ -266,21 +293,24 @@ function serialise_parameters($method, $parameters) {
 
 				break;
 			case 'string':
-				$serialised_parameters .= ",'" . addcslashes(trim($parameters[$key]), "'") . "'";
+				$serialised_parameters .= ',' . var_export(trim($parameters[$key]), true);
 				break;
 			case 'float':
-				$serialised_parameters .= "," . (float)trim($parameters[$key]);
+				$serialised_parameters .= "," . (float) trim($parameters[$key]);
 				break;
 			case 'array':
 				// we can handle an array of strings, maybe ints, definitely not booleans or other arrays
 				if (!is_array($parameters[$key])) {
-					$msg = elgg_echo('APIException:ParameterNotArray', array($key));
+					$msg = elgg_echo('APIException:ParameterNotArray', [$key]);
 					throw new APIException($msg);
 				}
 
 				$array = "array(";
 
 				foreach ($parameters[$key] as $k => $v) {
+					// This is using sanitise_string() to escape characters to be inside a
+					// single-quoted string literal in PHP code. Not sure what we have to do
+					// to keep this safe in 3.0...
 					$k = sanitise_string($k);
 					$v = sanitise_string($v);
 
@@ -295,7 +325,7 @@ function serialise_parameters($method, $parameters) {
 				$serialised_parameters .= $array;
 				break;
 			default:
-				$msg = elgg_echo('APIException:UnrecognisedTypeCast', array($value['type'], $key, $method));
+				$msg = elgg_echo('APIException:UnrecognisedTypeCast', [$value['type'], $key, $method]);
 				throw new APIException($msg);
 		}
 	}
@@ -308,16 +338,12 @@ function serialise_parameters($method, $parameters) {
 /**
  * PAM: Confirm that the call includes a valid API key
  *
- * @return true if good API key - otherwise throws exception
- *
- * @return mixed
+ * @return bool true if good API key - otherwise throws exception
  * @throws APIException
  * @since 1.7.0
  * @access private
  */
 function api_auth_key() {
-	global $CONFIG;
-
 	// check that an API key is present
 	$api_key = get_input('api_key');
 	if ($api_key == "") {
@@ -325,7 +351,7 @@ function api_auth_key() {
 	}
 
 	// check that it is active
-	$api_user = get_api_user($CONFIG->site_id, $api_key);
+	$api_user = get_api_user($api_key);
 	if (!$api_user) {
 		// key is not active or does not exist
 		throw new APIException(elgg_echo('APIException:BadAPIKey'));
@@ -335,7 +361,6 @@ function api_auth_key() {
 	// plugin can also return false to fail this authentication method
 	return elgg_trigger_plugin_hook('api_key', 'use', $api_key, true);
 }
-
 
 /**
  * PAM: Confirm the HMAC signature
@@ -347,13 +372,11 @@ function api_auth_key() {
  * @access private
  */
 function api_auth_hmac() {
-	global $CONFIG;
-
 	// Get api header
 	$api_header = get_and_validate_api_headers();
 
 	// Pull API user details
-	$api_user = get_api_user($CONFIG->site_id, $api_header->api_key);
+	$api_user = get_api_user($api_header->api_key);
 
 	if (!$api_user) {
 		throw new SecurityException(elgg_echo('SecurityException:InvalidAPIKey'),
@@ -393,7 +416,7 @@ function api_auth_hmac() {
 
 		if (strcmp($api_header->posthash, $calculated_posthash) != 0) {
 			$msg = elgg_echo('SecurityException:InvalidPostHash',
-			array($calculated_posthash, $api_header->posthash));
+			[$calculated_posthash, $api_header->posthash]);
 
 			throw new SecurityException($msg);
 		}
@@ -488,18 +511,18 @@ function get_and_validate_api_headers() {
  */
 function map_api_hash($algo) {
 	$algo = strtolower(sanitise_string($algo));
-	$supported_algos = array(
+	$supported_algos = [
 		"md5" => "md5",	// @todo Consider phasing this out
 		"sha" => "sha1", // alias for sha1
 		"sha1" => "sha1",
 		"sha256" => "sha256"
-	);
+	];
 
 	if (array_key_exists($algo, $supported_algos)) {
 		return $supported_algos[$algo];
 	}
 
-	throw new APIException(elgg_echo('APIException:AlgorithmNotSupported', array($algo)));
+	throw new APIException(elgg_echo('APIException:AlgorithmNotSupported', [$algo]));
 }
 
 /**
@@ -521,8 +544,6 @@ function map_api_hash($algo) {
  */
 function calculate_hmac($algo, $time, $nonce, $api_key, $secret_key,
 $get_variables, $post_hash = "") {
-
-	global $CONFIG;
 
 	elgg_log("HMAC Parts: $algo, $time, $api_key, $secret_key, $get_variables, $post_hash");
 
@@ -591,14 +612,12 @@ function cache_hmac_check_replay($hmac) {
  * @access private
  */
 function pam_auth_usertoken() {
-	global $CONFIG;
-
 	$token = get_input('auth_token');
 	if (!$token) {
 		return false;
 	}
-
-	$validated_userid = validate_user_token($token, $CONFIG->site_id);
+	
+	$validated_userid = validate_user_token($token);
 
 	if ($validated_userid) {
 		$u = get_entity($validated_userid);
@@ -664,7 +683,7 @@ function _php_api_error_handler($errno, $errmsg, $filename, $linenum, $vars) {
 
 	switch ($errno) {
 		case E_USER_ERROR:
-			error_log("[".date(DATE_RFC2822)."] ERROR: " . $error . PHP_EOL, 3, elgg_get_root_path ()."web_error_log");
+			error_log("ERROR: " . $error);
 			$ERRORS[] = "ERROR: " . $error;
 
 			// Since this is a fatal error, we want to stop any further execution but do so gracefully.
@@ -673,12 +692,12 @@ function _php_api_error_handler($errno, $errmsg, $filename, $linenum, $vars) {
 
 		case E_WARNING :
 		case E_USER_WARNING :
-			error_log("[".date(DATE_RFC2822)."] WARNING: " . $error . PHP_EOL, 3, elgg_get_root_path ()."web_error_log");
+			error_log("WARNING: " . $error);
 			$ERRORS[] = "WARNING: " . $error;
 			break;
 
 		default:
-			error_log("[".date(DATE_RFC2822)."] DEBUG: " . $error . PHP_EOL, 3, elgg_get_root_path ()."web_error_log");
+			error_log("DEBUG: " . $error);
 			$ERRORS[] = "DEBUG: " . $error;
 	}
 }
@@ -696,12 +715,12 @@ function _php_api_error_handler($errno, $errmsg, $filename, $linenum, $vars) {
  */
 function _php_api_exception_handler($exception) {
 
-	error_log("[".date(DATE_RFC2822)."] *** FATAL EXCEPTION (API) *** : " . $exception . PHP_EOL, 3, elgg_get_root_path ()."web_error_log");
+	error_log("*** FATAL EXCEPTION (API) *** : " . $exception);
 
 	$code   = $exception->getCode() == 0 ? ErrorResult::$RESULT_FAIL : $exception->getCode();
-	$result = new ErrorResult($exception->getMessage(), $code, NULL);
+	$result = new ErrorResult($exception->getMessage(), $code, null);
 
-	echo elgg_view_page($exception->getMessage(), elgg_view("api/output", array("result" => $result)));
+	echo elgg_view_page($exception->getMessage(), elgg_view("api/output", ["result" => $result]));
 }
 
 
@@ -716,8 +735,6 @@ function _php_api_exception_handler($exception) {
  * @access private
  */
 function service_handler($handler, $request) {
-	global $CONFIG;
-
 	elgg_set_context('api');
 
 	$request = explode('/', $request);
@@ -738,12 +755,14 @@ function service_handler($handler, $request) {
 
 	elgg_set_viewtype($response_format);
 
-	if (!isset($CONFIG->servicehandler) || empty($handler)) {
+	$servicehandler = _elgg_config()->servicehandler;
+
+	if (!isset($servicehandler) || empty($handler)) {
 		// no handlers set or bad url
 		header("HTTP/1.0 404 Not Found");
 		exit;
-	} else if (isset($CONFIG->servicehandler[$handler]) && is_callable($CONFIG->servicehandler[$handler])) {
-		$function = $CONFIG->servicehandler[$handler];
+	} else if (isset($servicehandler[$handler]) && is_callable($servicehandler[$handler])) {
+		$function = $servicehandler[$handler];
 		call_user_func($function, $request, $handler);
 	} else {
 		// no handler for this web service
