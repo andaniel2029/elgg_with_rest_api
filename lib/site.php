@@ -2,15 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: Daniel
- * Date: 1/12/2016
+ * Date: 5/31/2019
  * Time: 9:16 AM
  */
 
-////////////////////////////////////////////////////////////////////////////////////
 //get elgg site info
 elgg_ws_expose_function('site.getinfo',
     "site_getinfo",
-    array(),
+    [],
     "Get site information",
     'GET',
     false,
@@ -38,7 +37,7 @@ function site_getinfo() {
 
 function site_get_list_plugin() {
     $plugins = elgg_get_plugins($status = 'active', $site_guid = null);
-    $return = array(
+    $return = [
         'messages' => false,
         'thewire' => false,
         'blog' => false,
@@ -46,7 +45,7 @@ function site_get_list_plugin() {
         'file' => false,
         'bookmarks' => false,
         'groups' => false,
-    );
+    ];
     foreach ($plugins as $plugin) {
         $a = $plugin->title;
         if (array_key_exists($plugin->title, $return)) {
@@ -59,18 +58,16 @@ function site_get_list_plugin() {
 
 elgg_ws_expose_function('site.get_list_plugin',
     "site_get_list_plugin",
-    array(),
+    [],
     "Get list site Plugin",
     'GET',
     false,
     false);
-	
-	
-	
+
 elgg_ws_expose_function(
 	"site.getapi",
 	"site_getapi",
-	array(),
+	[],
 	"Get API Key",
 	'POST',
 	false,
@@ -81,17 +78,15 @@ function site_getapi() {
     return get_api_key();
 }
 
-
-
-
-
 function site_get_content($type) {
 	return elgg_get_plugin_setting($type, 'improvement');
 }
 
 elgg_ws_expose_function('site.get_content',
     "site_get_content",
-	array('type' => array ('type' => 'string'),),
+	[
+        'type' => ['type' => 'string']
+    ],
     "Get details like about us, terms, privacy etc.",
     'GET',
     false,
@@ -105,10 +100,10 @@ function user_can_edit($guid,$username) {
 
 elgg_ws_expose_function('site.user_can_edit',
     "user_can_edit",
-	array(
-		'guid' => array ('type'=> 'int', 'required'=>true),
-		'username' => array ('type'=> 'string', 'required'=>true),
-	),
+	[
+		'guid' => ['type'=> 'int', 'required'=>true],
+		'username' => ['type'=> 'string', 'required'=>true],
+    ],
     "Get about user if he/she ownes the object.",
     'GET',
     false,
@@ -139,11 +134,13 @@ if (elgg_instanceof($comment, 'object', 'comment') && $comment->canEdit($user->g
 
 elgg_ws_expose_function('site.delete_comment',
 	"site_delete_comment",
-	array(
-		'comment_guid' => array ('type'=> 'int', 'required'=>true),
-		'username' => array ('type'=> 'string', 'required'=>true),
-	),
+	[
+		'comment_guid'  => ['type'=> 'int', 'required'=>true],
+		'username'      => ['type'=> 'string', 'required'=>true],
+    ],
 	"Delete comment",
 	'GET',
 	true,
-	true);
+    true);
+  
+?>
