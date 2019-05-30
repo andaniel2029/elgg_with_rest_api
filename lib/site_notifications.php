@@ -11,14 +11,14 @@ function site_get_notification($username) {
         }
     }
 	if (elgg_is_active_plugin('site_notifications')) {
-	$return['list'] = elgg_list_entities_from_metadata(array(
+	$return['list'] = elgg_list_entities_from_metadata([
 		'type' => 'object',
 		'subtype' => 'site_notification',
 		'owner_guid' => $user->guid,
 		'full_view' => false,
 		'metadata_name' => 'read',
 		'metadata_value' => false,
-	));
+    ]);
 	}else{
 		$return['list'] = "";
 	}
@@ -28,18 +28,14 @@ function site_get_notification($username) {
 
 elgg_ws_expose_function('site.get_notifications',
     "site_get_notification",
-    array(
-        'username' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'username' => ['type' => 'string', 'required' => true],
+    ],
     "Get list of notifications",
     'GET',
     true,
     true);
 
-
-	
-	
-	
 /* Site get count of notifications */
 	
 function site_notification_count($username) {
@@ -53,15 +49,15 @@ function site_notification_count($username) {
     }
 
 	if (elgg_is_active_plugin('site_notifications')) {
-         $return['count'] = elgg_get_entities_from_metadata(array(
+         $return['count'] = elgg_get_entities_from_metadata([
 				'type' => 'object',
 				'subtype' => 'site_notification',
 				'owner_guid' => $user->guid,
 				'metadata_name' => 'read',
 				'metadata_value' => false,
 				'count' => true,
-			));
-	}else{
+            ]);
+	}else {
 		$return['count'] = 0;
 	}
  
@@ -70,10 +66,12 @@ function site_notification_count($username) {
 
 elgg_ws_expose_function('site.notifications_count',
     "site_notification_count",
-    array(
-        'username' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'username' => ['type' => 'string', 'required' => true],
+    ],
     "Get list of notifications",
     'GET',
     true,
     true);
+
+?>
