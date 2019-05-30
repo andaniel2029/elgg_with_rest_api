@@ -4,10 +4,8 @@ class DB_Connect {
 
     // Connecting to database
     public function connect() {
-        global $CONFIG;
-
         // connecting to mysql
-        $con = mysqli_connect($CONFIG->dbhost, $CONFIG->dbuser, $CONFIG->dbpass, $CONFIG->dbname);
+        $con = mysqli_connect(_elgg_config()->dbhost, _elgg_config()->dbuser, _elgg_config()->dbpass, _elgg_config()->dbname);
         // selecting database
         if (!$con) {
             error_log("[".date(DATE_RFC2822)."] Error: Unable to connect to MySQL." . PHP_EOL, 3, "web_error_log");
@@ -19,4 +17,6 @@ class DB_Connect {
         // return database handler
         return $con;
     }
-} 
+}
+
+?>
