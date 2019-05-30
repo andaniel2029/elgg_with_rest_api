@@ -38,36 +38,34 @@ function file_post_comment($guid, $text, $username)
 
 			if ($guid_comment) {
 				$return['success'] = $guid_comment;
-				elgg_create_river_item(array(
-					'view' => 'river/object/comment/create',
-					'action_type' => 'comment',
-					'subject_guid' => $user->guid,
-					'object_guid' => $guid_comment,
-					'target_guid' => $entity->guid,
-				));
+				elgg_create_river_item([
+					'view' 			=> 'river/object/comment/create',
+					'action_type' 	=> 'comment',
+					'subject_guid' 	=> $user->guid,
+					'object_guid' 	=> $guid_comment,
+					'target_guid' 	=> $entity->guid,
+				]);
 			}
 		}
-
 		return $return;
 	} else {
 		$return['success'] = false;
 		$return['message'] = 'Require guid from post';
-
 		return $return;
 	}
 }
 
 elgg_ws_expose_function('file.post_comment',
 		"file_post_comment",
-		array(	'guid' => array ('type' => 'int', 'required' => true),
-				'text' => array ('type' => 'string', 'required' => true),
-				'username' => array ('type' => 'string', 'required' => true),
-		),
+		[
+			'guid' 		=> ['type' => 'int', 'required' => true],
+			'text' 		=> ['type' => 'string', 'required' => true],
+			'username' 	=> ['type' => 'string', 'required' => true],
+		],
 		"Post a comment on a file post",
 		'POST',
 		true,
 		true);
-
 
 /**
  * @param $context
@@ -89,49 +87,47 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
 	}
 
 	if($context == "all"){
-		$params = array(
-			'types' => 'object',
-			'subtypes' => 'file',
-			'limit' => $limit,
-            'offset' => $offset,
+		$params = [
+			'types' 	=> 'object',
+			'subtypes' 	=> 'file',
+			'limit' 	=> $limit,
+            'offset' 	=> $offset,
 			'full_view' => FALSE,
-		);
+		];
 		$latest_file = elgg_get_entities($params);
 	} else if($context == "mine" || $context == "user"){
-		$params = array(
-			'types' => 'object',
-			'subtypes' => 'file',
+		$params = [
+			'types' 	=> 'object',
+			'subtypes' 	=> 'file',
 			'owner_guid' => $user->guid,
-			'limit' => $limit,
-            'offset' => $offset,
+			'limit' 	=> $limit,
+            'offset' 	=> $offset,
 			'full_view' => FALSE,
-		);
+		];
 		$latest_file = elgg_get_entities($params);
 	} else if($context == "group"){
-		$params = array(
-			'types' => 'object',
-			'subtypes' => 'file',
+		$params = [
+			'types' 	=> 'object',
+			'subtypes'	=> 'file',
 			'container_guid'=> $group_guid,
-			'limit' => $limit,
-            'offset' => $offset,
+			'limit' 	=> $limit,
+            'offset' 	=> $offset,
 			'full_view' => FALSE,
-		);
+		];
 		$latest_file = elgg_get_entities($params);
 	}
 
-
 	if($context == "friends"){
-		$latest_file = elgg_get_entities_from_relationship(array(
-			'type' => 'object',
-			'subtype' => 'file',
-			'limit' => $limit,
-			'offset' => $offset,
+		$latest_file = elgg_get_entities([
+			'type' 		=> 'object',
+			'subtype' 	=> 'file',
+			'limit' 	=> $limit,
+			'offset' 	=> $offset,
 			'relationship' => 'friend',
 			'relationship_guid' => $user->guid,
 			'relationship_join_on' => 'container_guid',
-		));
+		]);
 	}
-
 
 	if($latest_file) {
         $site_url = get_config('wwwroot');
@@ -154,7 +150,7 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
 			$file['owner']['guid'] = $owner->guid;
 			$file['owner']['name'] = $owner->name;
             $file['owner']['username'] = $owner->username;
-			$file['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+			$file['owner']['avatar_url'] = getProfileIcon($owner);
 
 			$file['container_guid'] = $single->container_guid;
 			$file['access_id'] = $single->access_id;
@@ -178,12 +174,12 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
 
 			$file['like_count'] = likes_count_number_of_likes($single->guid);
 
-			$comments = elgg_get_entities(array(
-				'type' => 'object',
-				'subtype' => 'comment',
+			$comments = elgg_get_entities([
+				'type' 		=> 'object',
+				'subtype' 	=> 'comment',
 				'container_guid' => $single->guid,
-				'limit' => 0,
-			));
+				'limit' 	=> 0,
+			]);
 
 			$file['comment_count'] = sizeof($comments);
 			$file['like'] = checkLike($single->guid, $user->guid);
@@ -200,18 +196,17 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
 
 elgg_ws_expose_function('file.get_files',
 	"file_get_files",
-	array(
-		'context' => array ('type' => 'string', 'required' => true, 'default' => 'all'),
-		'username' => array ('type' => 'string', 'required' => true),
-		'limit' => array ('type' => 'int', 'required' => false, 'default' => 0),
-		'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-		'group_guid' => array ('type'=> 'int', 'required'=>false, 'default' =>0),
-	),
+	[
+		'context' 		=> ['type' => 'string', 'required' => true, 'default' => 'all'],
+		'username' 		=> ['type' => 'string', 'required' => true],
+		'limit' 		=> ['type' => 'int', 'required' => false, 'default' => 0],
+		'offset' 		=> ['type' => 'int', 'required' => false, 'default' => 0],
+		'group_guid' 	=> ['type'=> 'int', 'required'=>false, 'default' =>0],
+	],
 	"Get file uploaded by all users",
 	'GET',
 	true,
 	true);
-
 
 /**
  * @param $guid
@@ -265,11 +260,8 @@ function file_get_post($guid, $size, $username) {
 				$readfile->setFilename($thumbfile);
 				$mime = $file->getMimeType();
 				$contents = $readfile->grabFile();
-
 				// caching images for 10 days
-				header("Content-type: $mime");
-				
-				
+				header("Content-type: $mime");		
 				header("Content-Length: " . strlen($contents));
 
 				echo $contents;
@@ -304,16 +296,15 @@ function file_get_post($guid, $size, $username) {
 
 elgg_ws_expose_function('file.get_post',
 	"file_get_post",
-	array(
-		'guid' => array ('type'=> 'int', 'required'=>true),
-		'size' => array ('type' => 'string', 'required' => true),
-		'username' => array ('type' => 'string', 'required' => false),
-	),
+	[
+		'guid' 		=> ['type'=> 'int', 'required'=>true],
+		'size' 		=> ['type' => 'string', 'required' => true],
+		'username' 	=> ['type' => 'string', 'required' => false],
+	],
 	"Get file post",
 	'GET',
 	true,
 	true);
-
 
 /**
  * @param $guid
@@ -348,12 +339,11 @@ function file_get_file($guid, $username) {
         $file['description'] = strip_tags($single->description);
     }
 
-
     $owner = get_entity($single->owner_guid);
     $file['owner']['guid'] = $owner->guid;
     $file['owner']['name'] = $owner->name;
     $file['owner']['username'] = $owner->username;
-    $file['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+    $file['owner']['avatar_url'] = getProfileIcon($owner);
 
     $file['container_guid'] = $single->container_guid;
     $file['access_id'] = $single->access_id;
@@ -386,15 +376,14 @@ function file_get_file($guid, $username) {
 
 elgg_ws_expose_function('file.get_file',
     "file_get_file",
-    array(
-        'guid' => array ('type'=> 'int', 'required'=>true),
-        'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'guid' 		=> ['type'=> 'int', 'required'=>true],
+        'username' 	=> ['type' => 'string', 'required' => false],
+	],
     "Get file data",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -414,15 +403,15 @@ function file_get_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type' 		=> 'object',
+        'subtype' 	=> 'comment',
         'container_guid' => $guid,
-        'limit' => $limit,
-        'offset' => $offset,
-    ));
+        'limit' 	=> $limit,
+        'offset' 	=> $offset,
+	]);
 
-    $return = array();
+    $return = [];
     if($comments){
         foreach($comments as $single){
             $comment['guid'] = $single->guid;
@@ -432,7 +421,7 @@ function file_get_comments($guid, $username, $limit = 20, $offset = 0){
             $comment['owner']['guid'] = $owner->guid;
             $comment['owner']['name'] = $owner->name;
             $comment['owner']['username'] = $owner->username;
-            $comment['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $comment['owner']['avatar_url'] = getProfileIcon($owner);
 
             $comment['time_created'] = time_ago($single->time_created);
             $comment['like_count'] = likes_count_number_of_likes($single->guid);
@@ -448,12 +437,13 @@ function file_get_comments($guid, $username, $limit = 20, $offset = 0){
 
 elgg_ws_expose_function('file.get_comments',
     "file_get_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+    [
+		'guid' 		=> ['type' => 'string'],
+        'username' 	=> ['type' => 'string', 'required' => false],
+        'limit' 	=> ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset' 	=> ['type' => 'int', 'required' => false, 'default' => 0],
 
-    ),
+	],
     "Get comments for a post",
     'GET',
     true,
@@ -471,7 +461,7 @@ elgg_ws_expose_function('file.get_comments',
  * @internal param $size
  */
 function file_save_post($title, $description, $username, $access, $tags) {
-	$return = array();
+	$return = [];
 	if(!$username) {
 		$user = elgg_get_logged_in_user_entity();
 	} else {
@@ -605,12 +595,12 @@ function file_save_post($title, $description, $username, $access, $tags) {
 	// handle results differently for new files and file updates
 	if ($new_file) {
 		if ($fileSaved) {
-			elgg_create_river_item(array(
-				'view' => 'river/object/file/create',
-				'action_type' => 'create',
-				'subject_guid' => elgg_get_logged_in_user_guid(),
-				'object_guid' => $file->guid,
-			));
+			elgg_create_river_item([
+				'view' 			=> 'river/object/file/create',
+				'action_type' 	=> 'create',
+				'subject_guid' 	=> elgg_get_logged_in_user_guid(),
+				'object_guid' 	=> $file->guid,
+			]);
 
 			$return['guid'] = $file->guid;
 			$return['message'] = 'success';
@@ -630,13 +620,13 @@ function file_save_post($title, $description, $username, $access, $tags) {
 
 elgg_ws_expose_function('file.save_post',
 	"file_save_post",
-	array(
-		'title' => array ('type' => 'string', 'required' => true),
-		'description' => array ('type' => 'string', 'required' => false),
-		'username' => array ('type' => 'string', 'required' => true),
-		'access' => array ('type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS),
-		'tags' => array ('type' => 'string', 'required' => false, 'default'=>''),
-	),
+	[
+		'title' 		=> ['type' => 'string', 'required' => true],
+		'description'	=> ['type' => 'string', 'required' => false],
+		'username' 		=> ['type' => 'string', 'required' => true],
+		'access' 		=> ['type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS],
+		'tags' 			=> ['type' => 'string', 'required' => false, 'default'=>''],
+	],
 	"Upload file post",
 	'POST',
 	true,
@@ -654,7 +644,7 @@ elgg_ws_expose_function('file.save_post',
  */
 	
 function file_update_post($guid, $title, $description, $username, $access, $tags) {
-    $return = array();
+    $return = [];
 	if(!$username) {
 		$user = elgg_get_logged_in_user_entity();
 	} else {
@@ -699,19 +689,18 @@ function file_update_post($guid, $title, $description, $username, $access, $tags
 
 elgg_ws_expose_function('file.update_post',
 	"file_update_post",
-	array(
-		'guid' => array ('type'=> 'int', 'required'=>true),
-		'title' => array ('type' => 'string', 'required' => true),
-		'description' => array ('type' => 'string', 'required' => true),
-		'username' => array ('type' => 'string', 'required' => true),
-		'access' => array ('type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS),
-		'tags' => array ('type' => 'string', 'required' => false, 'default'=>''),
-	),
+	[
+		'guid' 			=> ['type'=> 'int', 'required'=>true],
+		'title' 		=> ['type' => 'string', 'required' => true],
+		'description' 	=> ['type' => 'string', 'required' => true],
+		'username' 		=> ['type' => 'string', 'required' => true],
+		'access' 		=> ['type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS],
+		'tags' 			=> ['type' => 'string', 'required' => false, 'default'=>''],
+	],
 	"Update file post",
 	'POST',
 	true,
 	true);
-
 
 /**
  * Delete file entity
@@ -737,11 +726,13 @@ function file_delete_post($guid,$username){
 
 elgg_ws_expose_function('file.delete_post',
 	"file_delete_post",
-	array(
-		'guid' => array ('type'=> 'int', 'required'=>true),
-		'username' => array ('type'=> 'string', 'required'=>true),
-	),
+	[
+		'guid' 		=> ['type'=> 'int', 'required'=>true],
+		'username' 	=> ['type'=> 'string', 'required'=>true],
+	],
 	"Delete file post",
 	'GET',
 	true,
 	true);
+
+?>
