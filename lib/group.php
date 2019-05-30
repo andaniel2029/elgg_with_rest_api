@@ -2,8 +2,8 @@
 /**
  * Created by IntelliJ IDEA.
  * User: Daniel
- * Date: 2/12/2016
- * Time: 4:56 PM
+ * Date: 5/31/2019
+ * Time: 4:56 AM
  *
  *
  * @param $context
@@ -29,17 +29,17 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
     $loginUser = elgg_get_logged_in_user_entity();
 
     if($context == "all"){
-        $params = array(
+        $params = [
             'type' => 'group',
             'full_view' => false,
             'no_results' => elgg_echo('groups:none'),
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $groups = elgg_get_entities($params);
     } else if ($context == 'mine') {
-        $params = array(
+        $params = [
             'type' => 'group',
             'container_guid' => $loginUser->guid,
             'full_view' => false,
@@ -47,39 +47,39 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $groups = elgg_get_entities($params);
     } else if ($context == 'member') {
         $dbprefix = elgg_get_config('dbprefix');
 
-        $groups = elgg_get_entities_from_relationship(array(
+        $groups = elgg_get_entities_from_relationship([
             'type' => 'group',
             'relationship' => 'member',
             'relationship_guid' => $loginUser->guid,
             'inverse_relationship' => false,
             'full_view' => false,
-            'joins' => array("JOIN {$dbprefix}groups_entity ge ON e.guid = ge.guid"),
+            'joins' => ["JOIN {$dbprefix}groups_entity ge ON e.guid = ge.guid"],
             'order_by' => 'ge.name ASC',
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
             'no_results' => elgg_echo('groups:none'),
-        ));
+        ]);
     } else {
-        $params = array(
-            'type' => 'group',
+        $params = [
+            'type'      => 'group',
             'full_view' => false,
             'no_results' => elgg_echo('groups:none'),
-            'distinct' => false,
-            'limit' => $limit,
-            'offset' => $offset,
-        );
+            'distinct'  => false,
+            'limit'     => $limit,
+            'offset'    => $offset,
+        ];
         $groups = elgg_get_entities($params);
     }
 
     $site_url = get_config('wwwroot');
     if($groups) {
-        $return = array();
+        $return = [];
         foreach($groups as $single ) {
             $group['guid'] = $single->guid;
 
@@ -94,7 +94,6 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
                 if (strlen($single->description) > 300) {
                     $entityString = substr(strip_tags($single->description), 0, 300);
                     $group['description'] = preg_replace('/\W\w+\s*(\W*)$/', '$1', $entityString) . '...';
-
                 } else {
                     $group['description'] = strip_tags($single->description);
                 }
@@ -121,12 +120,7 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
                 $group['tags'] = $single->getTags(); //$single->getTags();
             }
 
-
-
-
             $group['owner'] = getOwner($single->owner_guid);
-
-
             $return[] = $group;
         }
     }
@@ -135,23 +129,22 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
         throw new InvalidParameterException($msg);
     }
 
-
     return $return;
 }
 
 elgg_ws_expose_function('group.get_list',
     "group_get_list",
-    array(	'context' => array ('type' => 'string'),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-        'username' => array ('type' => 'string', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'context'   => ['type' => 'string'],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+        'username'  => ['type' => 'string', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "GET all the groups",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -185,18 +178,18 @@ function group_get_activity($guid, $limit = 20, $offset = 0, $username, $from_gu
 
     $db_prefix = elgg_get_config('dbprefix');
 
-    $activities = elgg_get_river(array(
-        'limit' => $limit,
-        'offset' => $offset,
-        'joins' => array(
+    $activities = elgg_get_river([
+        'limit'     => $limit,
+        'offset'    => $offset,
+        'joins'     => [
             "JOIN {$db_prefix}entities e1 ON e1.guid = rv.object_guid",
             "LEFT JOIN {$db_prefix}entities e2 ON e2.guid = rv.target_guid",
-        ),
-        'wheres' => array(
+        ],
+        'wheres'    => [
             "(e1.container_guid = $group->guid OR e2.container_guid = $group->guid)",
-        ),
+        ],
         'no_results' => elgg_echo('groups:activity:none'),
-    ));
+    ]);
 
     $handle = getRiverActivity($activities, $user, $login_user);
 
@@ -205,18 +198,17 @@ function group_get_activity($guid, $limit = 20, $offset = 0, $username, $from_gu
 
 elgg_ws_expose_function('group.get_activity',
     "group_get_activity",
-    array(
-        'guid' => array ('type' => 'string', 'required' => true),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-        'username' => array ('type' => 'string', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'guid'      => ['type' => 'string', 'required' => true],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+        'username'  => ['type' => 'string', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "GET group activity",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -239,7 +231,7 @@ function group_get_icon($guid, $size) {
         exit;
     }
 
-    if (!in_array($size, array('large', 'medium', 'small', 'tiny', 'master', 'topbar')))
+    if (!in_array($size, ['large', 'medium', 'small', 'tiny', 'master', 'topbar']))
         $size = "medium";
 
     $success = false;
@@ -268,15 +260,14 @@ function group_get_icon($guid, $size) {
 
 elgg_ws_expose_function('group.get_icon',
     "group_get_icon",
-    array(
-        'guid' => array ('type' => 'string', 'required' => true),
-        'size' => array ('type' => 'string', 'required' => false, 'default' => 'medium'),
-    ),
+    [
+        'guid' => ['type' => 'string', 'required' => true],
+        'size' => ['type' => 'string', 'required' => false, 'default' => 'medium'],
+    ],
     "GET group icon",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -304,7 +295,6 @@ function group_join_group($guid) {
     elgg_set_ignore_access($ia);
 
     if ($user && ($group instanceof ElggGroup)) {
-
         // join or request
         $join = false;
         if ($group->isPublicMembership() || $group->canEdit($user->guid)) {
@@ -338,18 +328,18 @@ function group_join_group($guid) {
 
             $url = "{$CONFIG->url}groups/requests/$group->guid";
 
-            $subject = elgg_echo('groups:request:subject', array(
+            $subject = elgg_echo('groups:request:subject', [
                 $user->name,
                 $group->name,
-            ), $owner->language);
+            ], $owner->language);
 
-            $body = elgg_echo('groups:request:body', array(
+            $body = elgg_echo('groups:request:body', [
                 $group->getOwnerEntity()->name,
                 $user->name,
                 $group->name,
                 $user->getURL(),
                 $url,
-            ), $owner->language);
+            ], $owner->language);
 
             // Notify group owner
             if (notify_user($owner->guid, $user->getGUID(), $subject, $body)) {
@@ -376,14 +366,13 @@ function group_join_group($guid) {
 
 elgg_ws_expose_function('group.join_group',
     "group_join_group",
-    array(
-        'guid' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'guid' => ['type' => 'string', 'required' => true],
+    ],
     "Join group",
     'POST',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -427,14 +416,13 @@ function group_leave_group($guid) {
 
 elgg_ws_expose_function('group.leave_group',
     "group_leave_group",
-    array(
-        'guid' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'guid' => ['type' => 'string', 'required' => true],
+    ],
     "Leave group",
     'POST',
     true,
     true);
-
 
 /**
  * @param $group
@@ -452,3 +440,5 @@ function isMemberOf($group, $user) {
     }
     return $isMember;
 }
+
+?>
