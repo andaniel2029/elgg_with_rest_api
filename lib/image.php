@@ -1,8 +1,8 @@
 <?php
 /**
  * Created by PhpStorm.
- * Date: 12/4/2015
- * Time: 11:38 PM
+ * Date: 05/31/2019
+ * Time: 11:38 AM
  * @param int $access
  * @param $album_guid
  * @param $username
@@ -91,7 +91,7 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
     set_input('tidypics_action_name', 'tidypics_photo_upload');
 
     if ($result) {
-        $album->prependImageList(array($image->guid));
+        $album->prependImageList([$image->guid]);
         $img_river_view = elgg_get_plugin_setting('img_river_view', 'tidypics');
 
         $batch = new TidypicsBatch();
@@ -102,28 +102,25 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
 
         if ($batch->save()) {
             add_entity_relationship($image->guid, "belongs_to_batch", $batch->getGUID());
-            //foreach ($images as $image) {
-            //    add_entity_relationship($image->guid, "belongs_to_batch", $batch->getGUID());
-            //}
         }
 
         $img_river_view = elgg_get_plugin_setting('img_river_view', 'tidypics');
         // "added images to album" river
         if ($img_river_view == "batch" && $album->new_album == false) {
-            elgg_create_river_item(array(
+            elgg_create_river_item([
                 'view' => 'river/object/tidypics_batch/create',
                 'action_type' => 'create',
                 'subject_guid' => $batch->getOwnerGUID(),
                 'object_guid' => $batch->getGUID(),
-            ));
+            ]);
         } else if ($img_river_view == "1" && $album->new_album == false) {
-            elgg_create_river_item(array(
+            elgg_create_river_item([
                 'view' => 'river/object/tidypics_batch/create_single_image',
                 'action_type' => 'create',
                 'subject_guid' => $batch->getOwnerGUID(),
                 'object_guid' => $batch->getGUID(),
                 'target_guid' => $album->getGUID(),
-            ));
+            ]);
         }
 
         // "created album" river
@@ -133,13 +130,13 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
 
             $album_river_view = elgg_get_plugin_setting('album_river_view', 'tidypics');
             if ($album_river_view != "none") {
-                elgg_create_river_item(array(
+                elgg_create_river_item([
                     'view' => 'river/object/album/create',
                     'action_type' => 'create',
                     'subject_guid' => $album->getOwnerGUID(),
                     'object_guid' => $album->getGUID(),
                     'target_guid' => $album->getGUID(),
-                ));
+                ]);
             }
 
             // "created album" notifications
@@ -170,13 +167,13 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
 
 elgg_ws_expose_function('image.save_post',
     "image_save_post",
-    array(
-        'access' => array ('type' => 'string', 'required' => true),
-        'album_guid' => array ('type' => 'string', 'required' => true),
-        'username' => array ('type' => 'string', 'required' => true),
-        'title' => array ('type' => 'string', 'required' => false, 'default' => ''),
-        'caption' => array ('type' => 'string', 'required' => false, 'default' => ''),
-    ),
+    [
+        'access'        => ['type' => 'string', 'required' => true],
+        'album_guid'    => ['type' => 'string', 'required' => true],
+        'username'      => ['type' => 'string', 'required' => true],
+        'title'         => ['type' => 'string', 'required' => false, 'default' => ''],
+        'caption'       => ['type' => 'string', 'required' => false, 'default' => ''],
+    ],
     "Post a image post",
     'POST',
     true,
@@ -201,13 +198,13 @@ function wire_get_image_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'comment',
         'container_guid' => $guid,
-        'offset' => $offset,
-        'limit' => $limit,
-    ));
+        'offset'    => $offset,
+        'limit'     => $limit,
+    ]);
 
     if ($comments) {
         foreach($comments as $comment){
@@ -240,17 +237,16 @@ function wire_get_image_comments($guid, $username, $limit = 20, $offset = 0){
 
 elgg_ws_expose_function('wire.get_image_comments',
     "wire_get_image_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 10),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-
-    ),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 10],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Get image comments for a wire post",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -291,13 +287,13 @@ function wire_post_image_comment($guid, $text, $username)
 
         if ($comment_guid) {
             $return['success'] = $comment_guid;
-            elgg_create_river_item(array(
+            elgg_create_river_item([
                 'view' => 'river/object/comment/image',
                 'action_type' => 'comment',
                 'subject_guid' => $user->guid,
                 'object_guid' => $comment_guid,
                 'target_guid' => $entity->guid,
-            ));
+            ]);
         }
     }
     return $return;
@@ -305,15 +301,15 @@ function wire_post_image_comment($guid, $text, $username)
 
 elgg_ws_expose_function('wire.post_image_comment',
     "wire_post_image_comment",
-    array(	'guid' => array ('type' => 'int'),
-        'text' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'guid'      => ['type' => 'int'],
+        'text'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+    ],
     "Post a comment on a image post",
     'POST',
     true,
     true);
-
 
 function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
 
@@ -330,64 +326,63 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
     $loginUser = elgg_get_logged_in_user_entity();
 
     if($context == "all"){
-        $params = array(
-            'type' => 'object',
-            'subtype' => 'image',
-            'owner_guid' => NULL,
-            'limit' => $limit,
-            'offset' => $offset,
-            'full_view' => false,
-            'list_type' => 'gallery',
+        $params = [
+            'type'          => 'object',
+            'subtype'       => 'image',
+            'owner_guid'    => NULL,
+            'limit'         => $limit,
+            'offset'        => $offset,
+            'full_view'     => false,
+            'list_type'     => 'gallery',
             'gallery_class' => 'tidypics-gallery'
-        );
+        ];
     } else if ($context == 'mine') {
-        $params = array(
-            'type' => 'object',
-            'subtype' => 'image',
-            'owner_guid' => $user->guid,
-            'limit' => $limit,
-            'offset' => $offset,
-            'full_view' => false,
-            'list_type' => 'gallery',
+        $params = [
+            'type'          => 'object',
+            'subtype'       => 'image',
+            'owner_guid'    => $user->guid,
+            'limit'         => $limit,
+            'offset'        => $offset,
+            'full_view'     => false,
+            'list_type'     => 'gallery',
             'gallery_class' => 'tidypics-gallery'
-        );
+        ];
     } else if ($context == 'friends') {
-        if ($friends = $user->getFriends(array('limit' => false))) {
-            $friendguids = array();
+        if ($friends = $user->getFriends(['limit' => false])) {
+            $friendguids = [];
             foreach ($friends as $friend) {
                 $friendguids[] = $friend->getGUID();
             }
 
-            $params = array(
-                'type' => 'object',
-                'subtype' => 'image',
-                'owner_guids' => $friendguids,
-                'limit' => $limit,
-                'offset' => $offset,
+            $params = [
+                'type'      => 'object',
+                'subtype'   => 'image',
+                'owner_guids'   => $friendguids,
+                'limit'     => $limit,
+                'offset'    => $offset,
                 'full_view' => false,
                 'list_type' => 'gallery',
                 'gallery_class' => 'tidypics-gallery'
-            );
+            ];
         }
     } else {
-        $params = array(
-            'type' => 'object',
-            'subtype' => 'image',
+        $params = [
+            'type'      => 'object',
+            'subtype'   => 'image',
             'owner_guid' => NULL,
-            'limit' => $limit,
-            'offset' => $offset,
+            'limit'     => $limit,
+            'offset'    => $offset,
             'full_view' => false,
             'list_type' => 'gallery',
             'gallery_class' => 'tidypics-gallery'
-        );
+        ];
     }
 
     $photos = elgg_get_entities($params);
 
-
     $site_url = get_config('wwwroot');
     if($photos) {
-        $return = array();
+        $return = [];
         foreach($photos as $single ) {
             $photo['guid'] = $single->guid;
             $file_name = $single->getFilenameOnFilestore();
@@ -401,13 +396,11 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
             $icon_file_name = substr_replace($file_name, 'smallthumb', $position, 0);
 
             $image_icon_url = $site_url . 'services/api/rest/json/?method=image.get_post';
-            $icon_url = $image_icon_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid
-                . '&name=' . $icon_file_name;
+            $icon_url = $image_icon_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid . '&name=' . $icon_file_name;
             $icon_url = elgg_format_url($icon_url);
 
             $image_url = $site_url . 'services/api/rest/json/?method=image.get_post';
-            $img_url = $image_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid
-                . '&name=' . $file_name;
+            $img_url = $image_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid . '&name=' . $file_name;
             $img_url = elgg_format_url($img_url);
 
             $photo['container_guid'] = $single->container_guid;
@@ -424,13 +417,11 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
                 $photo['description'] = '';
             }
 
-
-
             $owner = get_entity($single->owner_guid);
             $photo['owner']['guid'] = $owner->guid;
             $photo['owner']['name'] = $owner->name;
             $photo['owner']['username'] = $owner->username;
-            $photo['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $photo['owner']['avatar_url'] = getProfileIcon($owner);
 
             $photo['icon_url'] =$icon_url;
             $photo['img_url'] = $img_url;
@@ -446,22 +437,21 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
         throw new InvalidParameterException($msg);
     }
 
-
     return $return;
 }
 
 elgg_ws_expose_function('image.get_photos',
     "image_get_photos",
-    array(	'context' => array ('type' => 'string'),
-            'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-            'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-            'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'context'   => ['type' => 'string'],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+        'username'  => ['type' => 'string', 'required' => false],
+    ],
     "GET all the photos",
     'GET',
     true,
     true);
-
 
 /**
  * @param $joindate
@@ -470,9 +460,7 @@ elgg_ws_expose_function('image.get_photos',
  */
 function image_get_post($joindate, $guid, $name)
 {
-    global $CONFIG;
-
-// won't be able to serve anything if no joindate or guid
+    // won't be able to serve anything if no joindate or guid
     if (!isset($_GET['joindate']) || !isset($_GET['guid'])) {
         header("HTTP/1.1 404 Not Found");
         exit;
@@ -483,14 +471,14 @@ function image_get_post($joindate, $guid, $name)
     $guid = (int)$_GET['guid'];
     $filename = $_GET['name'];
 
-// If is the same ETag, content didn't changed.
+    // If is the same ETag, content didn't changed.
     $etag = $last_cache . $guid;
     if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == "\"$etag\"") {
         header("HTTP/1.1 304 Not Modified");
         exit;
     }
 
-    $filename = str_replace(array('\\'), '',$filename);
+    $filename = str_replace(['\\'], '',$filename);
     $filesize = @filesize($filename);
     if ($filesize) {
         header("Content-type: image/jpeg");
@@ -506,11 +494,14 @@ function image_get_post($joindate, $guid, $name)
 
 elgg_ws_expose_function('image.get_post',
     "image_get_post",
-    array(	'joindate' => array ('type' => 'int'),
-        'guid' => array ('type' => 'int'),
-        'name' => array ('type' => 'string'),
-    ),
+    [
+        'joindate'  => ['type' => 'int'],
+        'guid'      => ['type' => 'int'],
+        'name'      => ['type' => 'string'],
+    ],
     "Get image post",
     'GET',
     true,
     true);
+
+?>
