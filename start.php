@@ -1,7 +1,6 @@
 <?php
-/**
- * Elgg web services API plugin
- */
+
+// Elgg web services API plugin
 
 elgg_register_event_handler('init', 'system', 'ws_init');
 
