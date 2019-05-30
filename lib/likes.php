@@ -40,8 +40,9 @@ function likes_add($entity_guid) {
 
 elgg_ws_expose_function('likes.add',
 				"likes_add",
-				array('entity_guid' => array ('type' => 'int'),
-					),
+				[
+					'entity_guid' => ['type' => 'int'],
+				],
 				"Add a like",
 				'POST',
 				true,
@@ -55,11 +56,11 @@ elgg_ws_expose_function('likes.add',
  * @return bool
  */
 function likes_delete($entity_guid) {
-	$likes = elgg_get_annotations(array(
+	$likes = elgg_get_annotations([
 		'guid' => $entity_guid,
 		'annotation_owner_guid' => elgg_get_logged_in_user_guid(),
 		'annotation_name' => 'likes',
-	));
+	]);
 	if ($likes) {
 		if ($likes[0]->canEdit()) {
 			$likes[0]->delete();
@@ -72,8 +73,9 @@ function likes_delete($entity_guid) {
 
 elgg_ws_expose_function('likes.delete',
 				"likes_delete",
-				array('entity_guid' => array ('type' => 'int'),
-					),
+				[
+					'entity_guid' => ['type' => 'int'],
+				],
 				"Delete a like",
 				'POST',
 				true,
@@ -93,8 +95,9 @@ function likes_count_number_of_likes($entity_guid) {
 
 elgg_ws_expose_function('likes.count',
 				"likes_count_number_of_likes",
-				array('entity_guid' => array ('type' => 'int'),
-					),
+				[
+					'entity_guid' => ['type' => 'int'],
+				],
 				"Count number of likes",
 				'GET',
 				true,
@@ -110,7 +113,7 @@ elgg_ws_expose_function('likes.count',
 function likes_getusers($entity_guid) {
 	$entity = get_entity($entity_guid);
 	if( likes_count($entity) > 0 ) {
-		$list = elgg_get_annotations(array('guid' => $entity_guid, 'annotation_name' => 'likes', 'limit' => 99));
+		$list = elgg_get_annotations(['guid' => $entity_guid, 'annotation_name' => 'likes', 'limit' => 99]);
 		foreach($list as $singlelike) {
 			$likes[$singlelike->id]['userid'] = $singlelike->owner_guid;
 			$likes[$singlelike->id]['time_created'] = $singlelike->time_created;
@@ -118,18 +121,19 @@ function likes_getusers($entity_guid) {
 		}
 	}
 	else {
-		$likes = elgg_echo('likes:userslikedthis', array(likes_count($entity)));
+		$likes = elgg_echo('likes:userslikedthis', [likes_count($entity)]);
 	}
 	return $likes;
 }
-
 				
 elgg_ws_expose_function('likes.getusers',
 				"likes_getusers",
-				array('entity_guid' => array ('type' => 'int'),
-					),
+				[
+					'entity_guid' => ['type' => 'int'],
+				],
 				"Get users who liked an entity",
 				'GET',
 				true,
 				true);
-				
+
+?>
