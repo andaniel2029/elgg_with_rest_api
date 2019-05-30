@@ -21,40 +21,39 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
         }
     }
 
-    if($context == "all"){
-        $params = array(
-            'types' => 'object',
-            'subtypes' => 'blog',
-            'limit' => $limit,
-            'offset' => $offset,
+    if($context == "all") {
+        $params = [
+            'types'     => 'object',
+            'subtypes'  => 'blog',
+            'limit'     => $limit,
+            'offset'    => $offset,
             'full_view' => FALSE,
-        );
+        ];
         $latest_blogs = elgg_get_entities($params);
-    } else if($context == "mine" || $context ==  "user"){
-        $params = array(
-            'types' => 'object',
-            'subtypes' => 'blog',
-            'owner_guid' => $user->guid,
-            'limit' => $limit,
-            'offset' => $offset,
-            'full_view' => FALSE,
-        );
+    } else if($context == "mine" || $context ==  "user") {
+        $params = [
+            'types'         => 'object',
+            'subtypes'      => 'blog',
+            'owner_guid'    => $user->guid,
+            'limit'         => $limit,
+            'offset'        => $offset,
+            'full_view'     => FALSE,
+        ];
         $latest_blogs = elgg_get_entities($params);
-    } else if($context == "group"){
-        $params = array(
-            'types' => 'object',
-            'subtypes' => 'blog',
-            'container_guid'=> $group_guid,
-            'limit' => $limit,
-            'offset' => $offset,
-            'full_view' => FALSE,
-        );
+    } else if($context == "group") {
+        $params = [
+            'types'             => 'object',
+            'subtypes'          => 'blog',
+            'container_guid'    => $group_guid,
+            'limit'             => $limit,
+            'offset'            => $offset,
+            'full_view'         => FALSE,
+        ];
         $latest_blogs = elgg_get_entities($params);
     }
 
-
-    if($context == "friends"){
-        $options = array(
+    if($context == "friends") {
+        $options = [
             'type' => 'object',
             'subtype' => 'blog',
             'full_view' => false,
@@ -63,11 +62,9 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
             'relationship_join_on' => 'container_guid',
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $latest_blogs = elgg_get_entities_from_relationship($options);
-
     }
-
 
     if($latest_blogs) {
         foreach($latest_blogs as $single ) {
@@ -80,7 +77,6 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
             if (strlen($single->description) > 300) {
                 $entityString = substr(strip_tags($single->description), 0, 300);
                 $blog['description'] = preg_replace('/\W\w+\s*(\W*)$/', '$1', $entityString) . '...';
-
             } else {
                 $blog['description'] = strip_tags($single->description);
             }
@@ -89,7 +85,7 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
             $blog['owner']['guid'] = $owner->guid;
             $blog['owner']['name'] = $owner->name;
             $blog['owner']['username'] = $owner->username;
-            $blog['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $blog['owner']['avatar_url'] = getProfileIcon($owner);
 
             $blog['container_guid'] = $single->container_guid;
             $blog['access_id'] = $single->access_id;
@@ -100,12 +96,12 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
             $blog['like_count'] = likes_count_number_of_likes($single->guid);
             $blog['like'] = checkLike($single->guid, $user->guid);
 
-            $comments = elgg_get_entities(array(
+            $comments = elgg_get_entities([
                 'type' => 'object',
                 'subtype' => 'comment',
                 'container_guid' => $single->guid,
                 "limit" => 0,
-            ));
+            ]);
 
             $blog['comment_count'] = sizeof($comments);
             if ($single->tags == null) {
@@ -126,18 +122,17 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
 
 elgg_ws_expose_function('blog.get_posts',
     "blog_get_posts",
-    array(
-        'context' => array ('type' => 'string', 'required' => true, 'default' => 'all'),
-        'username' => array ('type' => 'string', 'required' => true),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-        'group_guid' => array ('type'=> 'int', 'required'=>false, 'default' =>0),
-    ),
+    [
+        'context'    => ['type' => 'string', 'required' => true, 'default' => 'all'],
+        'username'   => ['type' => 'string', 'required' => true],
+        'limit'      => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'     => ['type' => 'int', 'required' => false, 'default' => 0],
+        'group_guid' => ['type'=> 'int', 'required'=>false, 'default' =>0],
+    ],
     "Get list of blog posts",
     'GET',
     true,
     true);
-
 
 /**
  * Web service for making a blog post
@@ -180,7 +175,6 @@ function blog_save_post($title, $body, $comment_status, $access, $status, $usern
         $access_id = -2;
     }
 
-
     $blog = new ElggBlog();
     $blog->subtype = "blog";
     $blog->owner_guid = $user->guid;
@@ -198,12 +192,12 @@ function blog_save_post($title, $body, $comment_status, $access, $status, $usern
 
     if ($guid > 0 && $newStatus == 'published') {
 
-        elgg_create_river_item(array(
-            'view' => 'river/object/blog/create',
-            'action_type' => 'create',
-            'subject_guid' => $blog->owner_guid,
-            'object_guid' => $blog->getGUID(),
-        ));
+        elgg_create_river_item([
+            'view'          => 'river/object/blog/create',
+            'action_type'   => 'create',
+            'subject_guid'  => $blog->owner_guid,
+            'object_guid'   => $blog->getGUID(),
+        ]);
 
         elgg_trigger_event('publish', 'object', $blog);
 
@@ -211,7 +205,6 @@ function blog_save_post($title, $body, $comment_status, $access, $status, $usern
             $blog->time_created = time();
             $blog->save();
         }
-
         $return['guid'] = $guid;
         $return['message'] = $newStatus;
     } else {
@@ -224,21 +217,20 @@ function blog_save_post($title, $body, $comment_status, $access, $status, $usern
 
 elgg_ws_expose_function('blog.save_post',
     "blog_save_post",
-    array(
-        'title' => array ('type' => 'string', 'required' => true),
-        'body' => array ('type' => 'string', 'required' => true),
-        'comment_status' => array ('type' => 'string', 'required' => true, 'default' => "On"),
-        'access' => array ('type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS),
-        'status' => array ('type' => 'string', 'required' => true, 'default' => "published"),
-        'username' => array ('type' => 'string', 'required' => true),
-        'tags' => array ('type' => 'string', 'required' => false, 'default' => ""),
-        'excerpt' => array ('type' => 'string', 'required' => false, 'default' => ""),
-    ),
+    [
+        'title'     => ['type' => 'string', 'required' => true],
+        'body'      => ['type' => 'string', 'required' => true],
+        'comment_status' => ['type' => 'string', 'required' => true, 'default' => "On"],
+        'access'    => ['type' => 'string', 'required' => true, 'default'=> ACCESS_FRIENDS],
+        'status'    => ['type' => 'string', 'required' => true, 'default' => "published"],
+        'username'  => ['type' => 'string', 'required' => true],
+        'tags'      => ['type' => 'string', 'required' => false, 'default' => ""],
+        'excerpt'   => ['type' => 'string', 'required' => false, 'default' => ""],
+    ],
     "Post a blog post",
     'POST',
     true,
     true);
-
 
 /**
  * Web service for delete a blog post
@@ -251,7 +243,7 @@ elgg_ws_expose_function('blog.save_post',
  *
  */
 function blog_delete_post($guid, $username) {
-    $return = array();
+    $return = [];
     $blog = get_entity($guid);
     $return['success'] = false;
     if (!elgg_instanceof($blog, 'object', 'blog')) {
@@ -284,14 +276,14 @@ function blog_delete_post($guid, $username) {
 
 elgg_ws_expose_function('blog.delete_post',
     "blog_delete_post",
-    array('guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string'),
-    ),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string'],
+    ],
     "Read a blog post",
     'POST',
     true,
     true);
-
 
 /**
  * Web service for read a blog post
@@ -303,7 +295,7 @@ elgg_ws_expose_function('blog.delete_post',
  *
  */
 function blog_get_post($guid, $username) {
-    $return = array();
+    $return = [];
     $blog = get_entity($guid);
 
     if (!elgg_instanceof($blog, 'object', 'blog')) {
@@ -342,12 +334,12 @@ function blog_get_post($guid, $username) {
         $return['tags'] = $blog->tags;
     }
 
-    $comments = elgg_get_entities(array(
+    $comments = elgg_get_entities([
         'type' => 'object',
         'subtype' => 'comment',
         'container_guid' => $guid,
         'limit' => 0,
-    ));
+    ]);
 
     $return['owner'] = getBlogOwner($blog->owner_guid);
     $return['access_id'] = $blog->access_id;
@@ -363,15 +355,14 @@ function blog_get_post($guid, $username) {
 
 elgg_ws_expose_function('blog.get_post',
     "blog_get_post",
-
-    array('guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'guid' => ['type' => 'string'],
+        'username' => ['type' => 'string', 'required' => false],
+    ],
     "Read a blog post",
     'GET',
     true,
     true);
-
 
 /**
  * Web service to retrieve comments on a blog post
@@ -394,14 +385,13 @@ function blog_get_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'comment',
         'container_guid' => $guid,
-        'limit' => $limit,
-        'offset' => $offset,
-    ));
-
+        'limit'     => $limit,
+        'offset'    => $offset,
+    ]);
 
     if($comments){
         foreach($comments as $single){
@@ -412,7 +402,7 @@ function blog_get_comments($guid, $username, $limit = 20, $offset = 0){
             $comment['owner']['guid'] = $owner->guid;
             $comment['owner']['name'] = $owner->name;
             $comment['owner']['username'] = $owner->username;
-            $comment['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $comment['owner']['avatar_url'] = getProfileIcon($owner);
 
             $comment['time_created'] = time_ago($single->time_created);
             $comment['like_count'] = likes_count_number_of_likes($single->guid);
@@ -428,17 +418,17 @@ function blog_get_comments($guid, $username, $limit = 20, $offset = 0){
 
 elgg_ws_expose_function('blog.get_comments',
     "blog_get_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
 
-    ),
+    ],
     "Get comments for a blog post",
     'GET',
     true,
     true);
-
 
 /**
  * Web service to comment on a post
@@ -463,22 +453,21 @@ function blog_post_comment($guid, $text){
         $user->guid,
         $entity->access_id);
 
-
     if($annotation){
         // notify if poster wasn't owner
         if ($entity->owner_guid != $user->guid) {
-
             notify_user($entity->owner_guid,
                 $user->guid,
                 elgg_echo('generic_comment:email:subject'),
-                elgg_echo('generic_comment:email:body', array(
+                elgg_echo('generic_comment:email:body',
+                [
                     $entity->title,
                     $user->name,
                     $text,
                     $entity->getURL(),
                     $user->name,
                     $user->getURL()
-                ))
+                ])
             );
         }
 
@@ -489,11 +478,13 @@ function blog_post_comment($guid, $text){
     }
     return $return;
 }
+
 elgg_ws_expose_function('blog.post_comment',
     "blog_post_comment",
-    array(	'guid' => array ('type' => 'int'),
-        'text' => array ('type' => 'string'),
-    ),
+    [
+        'guid' => ['type' => 'int'],
+        'text' => ['type' => 'string'],
+    ],
     "Post a comment on a blog post",
     'POST',
     true,
@@ -505,7 +496,9 @@ function getBlogOwner($guid) {
     $owner['guid'] = $guid;
     $owner['name'] = $entity->name;
     $owner['username'] = $entity->username;
-    $owner['avatar_url'] = getProfileIcon($entity); //$entity->getIconURL('small');
+    $owner['avatar_url'] = getProfileIcon($entity);
 
     return $owner;
 }
+
+?>
