@@ -2,7 +2,7 @@
 /**
  * Created by IntelliJ IDEA.
  * User: Daniel
- * Date: 3/10/2016
+ * Date: 5/30/2019
  * Time: 10:10 AM
  */
 
@@ -23,12 +23,12 @@ function site_river_mine($username, $limit=20, $offset=0, $from_guid) {
         $offset = $offset + getActivityGuidPosition($from_guid, "mine", $user);
     }
 
-    $options = array(
+    $options = [
         'distinct' => false,
         'subject_guids' => $user->guid,
         'offset' => $offset,
         'limit' => $limit,
-    );
+    ];
 
     $activities = elgg_get_river($options);
 
@@ -42,16 +42,17 @@ function site_river_mine($username, $limit=20, $offset=0, $from_guid) {
 
 elgg_ws_expose_function('site.river_mine',
     'site_river_mine',
-    array(
-        'username' => array ('type' => 'string', 'required' =>true),
-        'limit' => array ('type' => 'int', 'required' => false),
-        'offset' => array ('type' => 'int', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'username' => ['type' => 'string', 'required' => true],
+        'limit' => ['type' => 'int', 'required' => false],
+        'offset' => ['type' => 'int', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Read mine latest news feed",
     'GET',
     true,
-    true);
+    true
+);
 
 function site_river_friends($username, $limit=20, $offset=0, $from_guid) {
     global $jsonexport;
@@ -70,13 +71,13 @@ function site_river_friends($username, $limit=20, $offset=0, $from_guid) {
         $offset = $offset + getActivityGuidPosition($from_guid, "friends", $user);
     }
 
-    $options = array(
+    $options = [
         'distinct' => false,
         'relationship' => 'friend',
         'relationship_guid' => $user->guid,
         'offset' => $offset,
         'limit' => $limit,
-    );
+    ];
 
     $activities = elgg_get_river($options);
 
@@ -90,37 +91,38 @@ function site_river_friends($username, $limit=20, $offset=0, $from_guid) {
 
 elgg_ws_expose_function('site.river_friends',
     'site_river_friends',
-    array(
-        'username' => array ('type' => 'string', 'required' =>true),
-        'limit' => array ('type' => 'int', 'required' => false),
-        'offset' => array ('type' => 'int', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'username' => ['type' => 'string', 'required' =>true],
+        'limit' => ['type' => 'int', 'required' => false],
+        'offset' => ['type' => 'int', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Read friends latest news feed",
     'GET',
     true,
-    true);
+    true
+);
 
 function getActivityGuidPosition($guid, $context, $loginUser) {
     $notFound = true;
     $offset = 0;
     while($notFound) {
         if ($context == 'mine') {
-            $options = array(
+            $options = [
                 'distinct' => false,
                 'subject_guids' => $loginUser->guid,
                 'offset' => $offset,
                 'limit' => 1,
-            );
+            ];
             $activity = elgg_get_river($options);
         } else if ($context == 'friends') {
-            $options = array(
+            $options = [
                 'distinct' => false,
                 'relationship' => 'friend',
                 'relationship_guid' => $loginUser->guid,
                 'offset' => $offset,
                 'limit' => 1,
-            );
+            ];
 
             $activity = elgg_get_river($options);
         }
