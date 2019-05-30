@@ -31,7 +31,7 @@ switch ($sort) {
 }
 
 // set up search params
-$params = array(
+$params = [
 	'query' => $query,
 	'offset' => $offset,
 	'limit' => $limit,
@@ -40,20 +40,18 @@ $params = array(
 	'search_type' => $search_type,
 	'type' => $entity_type,
 	'subtype' => $entity_subtype,
-//	'tag_type' => $tag_type,
 	'owner_guid' => $owner_guid,
 	'container_guid' => $container_guid,
-//	'friends' => $friends
 	'pagination' => ($search_type == 'all') ? FALSE : TRUE
-);
+];
 
 $types = get_registered_entity_types();
 $types = elgg_trigger_plugin_hook('search_types', 'get_queries', $params, $types);
 
-$custom_types = elgg_trigger_plugin_hook('search_types', 'get_types', $params, array());
+$custom_types = elgg_trigger_plugin_hook('search_types', 'get_types', $params, []);
 
 // start the actual search
-$results_html = array();
+$results_html = [];
 
 if ($search_type == 'all' || $search_type == 'entities') {
 	// to pass the correct current search type to the views
@@ -90,8 +88,7 @@ if ($search_type == 'all' || $search_type == 'entities') {
 					// no results and not hooked.  use default type search.
 					// don't change the params here, since it's really a different subtype.
 					// Will be passed to elgg_get_entities().
-					$results = elgg_trigger_plugin_hook('search', $type, $current_params, array());
-
+					$results = elgg_trigger_plugin_hook('search', $type, $current_params, []);
 				}
 
 				if (is_array($results['entities']) && $results['count']) {
@@ -106,16 +103,16 @@ if ($search_type == 'all' || $search_type == 'entities') {
 		$current_params['type'] = $type;
 		$current_params['subtype'] = ELGG_ENTITIES_NO_VALUE;
 
-		$results = elgg_trigger_plugin_hook('search', $type, $current_params, array());
+		$results = elgg_trigger_plugin_hook('search', $type, $current_params, []);
 		if ($results === FALSE) {
 			// someone is saying not to display these types in searches.
 			continue;
 		}
 
 		if (is_array($results['entities']) && $results['count']) {
-					foreach($results['entities'] as $result){
-						array_push($results_html, (array)$result->toObject());
-					}
+			foreach($results['entities'] as $result){
+				array_push($results_html, (array)$result->toObject());
+			}
 		}
 	}
 }
@@ -131,7 +128,7 @@ if ($search_type != 'entities' || $search_type == 'all') {
 			$current_params = $params;
 			$current_params['search_type'] = $type;
 
-			$results = elgg_trigger_plugin_hook('search', $type, $current_params, array());
+			$results = elgg_trigger_plugin_hook('search', $type, $current_params, []);
 
 			if ($results === FALSE) {
 				// someone is saying not to display these types in searches.
@@ -161,17 +158,19 @@ return $return;
 
 elgg_ws_expose_function('search.site',
 	"site_search",
-	array(
-		'q' => array ('type' => 'string','required' => true),
-		'offset' => array ('type' => 'int','required' => false),
-		'search_type' => array ('type' => 'string','required' => false),
-		'limit' => array ('type' => 'int','required' => false),
-		'entity_type' => array ('type' => 'string','required' => false),
-		'entity_subtype' => array ('type' => 'string','required' => false),
-		'sort' => array ('type' => 'string','required' => false),
-		'order' => array ('type' => 'string','required' => false),
-	),
+	[
+		'q' 		=> ['type' => 'string','required' => true],
+		'offset' 	=> ['type' => 'int','required' => false],
+		'search_type' 	=> ['type' => 'string','required' => false],
+		'limit'			=> ['type' => 'int','required' => false],
+		'entity_type'	=> ['type' => 'string','required' => false],
+		'entity_subtype' 	=> ['type' => 'string','required' => false],
+		'sort' 	=> ['type' => 'string','required' => false],
+		'order' => ['type' => 'string','required' => false],
+	],
 	"Search the Site",
 	'GET',
     false,
-    false);
+	false);
+
+?>
