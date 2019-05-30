@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ElggHMACCache
  * Store cached data in a temporary database, only used by the HMAC stuff.
@@ -7,31 +8,36 @@
  * @subpackage HMAC
  */
 class ElggHMACCache extends ElggCache {
+	
 	/**
 	 * Set the Elgg cache.
 	 *
 	 * @param int $max_age Maximum age in seconds, 0 if no limit.
 	 */
-	function __construct($max_age = 0) {
-		$this->setVariable("max_age", $max_age);
+	public function __construct($max_age = 0) {
+		$this->setVariable('max_age', $max_age);
 	}
 
 	/**
 	 * Save a key
 	 *
-	 * @param string $key  Name
-	 * @param string $data Value
+	 * @param string $key          Name
+	 * @param string $data         Value
+	 * @param int    $expire_after Number of seconds to expire cache after
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function save($key, $data) {
-		global $CONFIG;
-
-		$key = sanitise_string($key);
-		$time = time();
-
-		$query = "INSERT into {$CONFIG->dbprefix}hmac_cache (hmac, ts) VALUES ('$key', '$time')";
-		return insert_data($query);
+	public function save($key, $data, $expire_after = null) {
+		$dbprefix = elgg()->db->prefix;
+		
+		$query = "INSERT into {$dbprefix}hmac_cache (hmac, ts)
+			VALUES (:hmac, :time)";
+		$params = [
+			':hmac' => $key,
+			':time' => time(),
+		];
+		
+		return (bool) elgg()->db->insertData($query, $params);
 	}
 
 	/**
@@ -41,19 +47,24 @@ class ElggHMACCache extends ElggCache {
 	 * @param int    $offset Offset
 	 * @param int    $limit  Limit
 	 *
-	 * @return string
+	 * @return mixed|null The stored data or null if it's a miss
 	 */
 	public function load($key, $offset = 0, $limit = null) {
-		global $CONFIG;
+		$dbprefix = elgg()->db->prefix;
+		
+		$query = "SELECT *
+			FROM {$dbprefix}hmac_cache
+			WHERE hmac = :hmac";
+		$params = [
+			':hmac' => $key,
+		];
 
-		$key = sanitise_string($key);
-
-		$row = get_data_row("SELECT * from {$CONFIG->dbprefix}hmac_cache where hmac='$key'");
-		if ($row) {
+		$row = elgg()->db->getDataRow($query, null, $params);
+		if (!empty($row)) {
 			return $row->hmac;
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -64,11 +75,15 @@ class ElggHMACCache extends ElggCache {
 	 * @return bool
 	 */
 	public function delete($key) {
-		global $CONFIG;
+		$dbprefix = elgg()->db->prefix;
+		
+		$query = "DELETE FROM {$dbprefix}hmac_cache
+			WHERE hmac = :hmac";
+		$params = [
+			':hmac' => $key,
+		];
 
-		$key = sanitise_string($key);
-
-		return delete_data("DELETE from {$CONFIG->dbprefix}hmac_cache where hmac='$key'");
+		return (bool) elgg()->db->deleteData($query, $params);
 	}
 
 	/**
@@ -87,13 +102,15 @@ class ElggHMACCache extends ElggCache {
 	 *
 	 */
 	public function __destruct() {
-		global $CONFIG;
+		$dbprefix = elgg()->db->prefix;
+		$age = (int) $this->getVariable('max_age');
 
-		$time = time();
-		$age = (int)$this->getVariable("max_age");
+		$query = "DELETE FROM {$dbprefix}hmac_cache
+			WHERE ts < :expires";
+		$params = [
+			':expires' => (time() - $age),
+		];
 
-		$expires = $time - $age;
-
-		delete_data("DELETE from {$CONFIG->dbprefix}hmac_cache where ts<$expires");
+		elgg()->db->deleteData($query, $params);
 	}
 }

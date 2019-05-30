@@ -26,16 +26,16 @@ class ErrorResult extends GenericResult {
 	 *
 	 * @return void
 	 */
-	public function __construct($message, $code = "", Exception $exception = NULL) {
-		if ($code == "") {
+	public function __construct($message, $code = null, Exception $exception = null) {
+		if (!isset($code)) {
 			$code = ErrorResult::$RESULT_FAIL;
 		}
 
-		if ($exception != NULL) {
+		if ($exception != null) {
 			$this->setResult($exception->__toString());
 		}
 
-		$this->setStatusCode($code, $message);
+		$this->setStatusCode((int) $code, $message);
 	}
 
 	/**
@@ -47,7 +47,7 @@ class ErrorResult extends GenericResult {
 	 *
 	 * @return ErrorResult
 	 */
-	public static function getInstance($message, $code = "", Exception $exception = NULL) {
+	public static function getInstance($message, $code = null, Exception $exception = null) {
 		// Return a new error object.
 		return new ErrorResult($message, $code, $exception);
 	}
