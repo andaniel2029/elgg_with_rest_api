@@ -1,8 +1,8 @@
 <?php
 /**
  * Created by PhpStorm.
- * Date: 12/7/2015
- * Time: 12:30 PM
+ * Date: 5/31/2019
+ * Time: 04:30 PM
  * @param $regId
  * @param $account
  * @param $name
@@ -48,10 +48,10 @@ function gcm_register($regId, $account, $name) {
             $response['result'] = "success update gcm regId and user info";
         } else {
             $res = $db->storeUser($name, $account, $regId, $elgg_post, $elgg_message);
-            $registration_ids = array($regId);
-            $message = array("from_name" => "Core Server",
+            $registration_ids = [$regId];
+            $message = ["from_name" => "Core Server",
                 "subject" => "Campus Karma Notification",
-                "message" => "Enable Receive Notification");
+                "message" => "Enable Receive Notification"];
 
             $result = $gcm->send_notification($registration_ids, $message);
 
@@ -70,12 +70,14 @@ function gcm_register($regId, $account, $name) {
 
 elgg_ws_expose_function('gcm.register',
     "gcm_register",
-    array(
-        'regId' => array ('type' => 'string', 'required' => true),
-        'account' => array ('type' => 'string', 'required' => true),
-        'name' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'regId'     => ['type' => 'string', 'required' => true],
+        'account'   => ['type' => 'string', 'required' => true],
+        'name'      => ['type' => 'string', 'required' => true],
+    ],
     "GCM a Register for Notification",
     'POST',
     true,
     false);
+
+?>
