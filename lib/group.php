@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by IntelliJ IDEA.
- * User: mlui
+ * User: Daniel
  * Date: 2/12/2016
  * Time: 4:56 PM
  *
@@ -452,4 +452,3 @@ function isMemberOf($group, $user) {
     }
     return $isMember;
 }
-

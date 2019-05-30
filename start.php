@@ -15,6 +15,29 @@ function ws_init() {
 	\Elgg\Includer::requireFileOnce("$lib_dir/api_user.php");
 	\Elgg\Includer::requireFileOnce("$lib_dir/client.php");
 	\Elgg\Includer::requireFileOnce("$lib_dir/tokens.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/activity.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/album.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/auth.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/blog.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/bookmark.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/core.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/DB_connect.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/DB_Register_Functions.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/events.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/facebook.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/file.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/gcm_register.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/GCM.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/group.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/image.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/likes.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/message.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/search.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/site_notifications.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/site.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/user.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/web_login.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/wire.php");
 
 	// Register a service handler for the default web services
 	// The name rest is a misnomer as they are not RESTful
