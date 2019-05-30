@@ -1,9 +1,7 @@
 <?php
  
 class GCM {
- 
-    //put your code here
-    // constructor
+     // constructor
     function __construct() {
         $path = elgg_get_plugins_path();
         include_once $path.'elgg_with_rest_api/lib/DB_Register_Functions.php';
@@ -20,13 +18,14 @@ class GCM {
         while ($row = mysqli_fetch_array($results)) {
             $gcm_regid = $row['gcm_regid'];
             if ($gcm_regid) {
-                $registatoin_ids = array($gcm_regid);
-                $message = array( "from_name" => $sender_name,
-                                  "from_username" => $sender_username,
-                                  "subject" => $message_sent_title,
-                                  "message" => $body,
-                                  "recipient_username" => $recipient_username
-                               );
+                $registatoin_ids = [$gcm_regid];
+                $message = [
+                                "from_name"     => $sender_name,
+                                "from_username" => $sender_username,
+                                "subject"       => $message_sent_title,
+                                "message"       => $body,
+                                "recipient_username" => $recipient_username
+                            ];
                 $response = $this->send_notification($registatoin_ids, $message);
 
                 foreach ($response['results'] as $k => $val) {
@@ -38,9 +37,7 @@ class GCM {
                         }
                     }
                 }
-
             }
-
         }
         return true;
     }
@@ -60,15 +57,15 @@ class GCM {
             // Set POST variables
             $url = 'https://fcm.googleapis.com/fcm/send';
 
-            $fields = array(
+            $fields = [
                 'registration_ids' => $registration_ids,
                 'data' => $message,
-            );
+            ];
 
-            $headers = array(
+            $headers = [
                 'Authorization: key=' . $GOOGLE_API_KEY,
                 'Content-Type: application/json'
-            );
+            ];
             // Open connection
             $ch = curl_init();
 
@@ -81,7 +78,6 @@ class GCM {
 
             // Disabling SSL Certificate support temporarly
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
 
             // Execute post
@@ -121,3 +117,5 @@ class GCM {
         }
     }
 }
+
+?>
