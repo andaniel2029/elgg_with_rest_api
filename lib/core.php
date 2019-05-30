@@ -2,12 +2,12 @@
 
 elgg_ws_expose_function('site.river_short',
     'site_river_short',
-    array(
-        'username' => array ('type' => 'string', 'required' =>true),
-        'limit' => array ('type' => 'int', 'required' => false),
-        'offset' => array ('type' => 'int', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'username'  => ['type' => 'string', 'required' =>true],
+        'limit'     => ['type' => 'int', 'required' => false],
+        'offset'    => ['type' => 'int', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Read latest news feed",
     'GET',
     true,
@@ -31,15 +31,13 @@ function site_river_short($username, $limit=20, $offset=0, $from_guid) {
     if ($from_guid > 0) {
         $offset = $offset + getRiverGuidPosition($from_guid);
     }
-    $options = array(
-        'distinct' => false,
-        'offset' => $offset,
-        'limit' => $limit,
-    );
+    $options = [
+        'distinct'  => false,
+        'offset'    => $offset,
+        'limit'     => $limit,
+    ];
 
     $activities = elgg_get_river($options);
-    //$test2 = elgg_list_river($options);
-    //error_log($test2, 3, "web_error_log");
 
     $login_user = $user;
     $handle = getRiverActivity($activities, $user, $login_user);
@@ -49,12 +47,12 @@ function site_river_short($username, $limit=20, $offset=0, $from_guid) {
 
 elgg_ws_expose_function('post.get_comments',
     "post_get_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-
-    ),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Get comments for a post",
     'GET',
     true,
@@ -79,15 +77,15 @@ function post_get_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'comment',
         'container_guid' => $guid,
-        'limit' => $limit,
-        'offset' => $offset,
-    ));
+        'limit'     => $limit,
+        'offset'    => $offset,
+    ]);
 
-    $return = array();
+    $return = [];
     if($comments){
         foreach($comments as $single){
             $comment['guid'] = $single->guid;
@@ -97,7 +95,7 @@ function post_get_comments($guid, $username, $limit = 20, $offset = 0){
             $comment['owner']['guid'] = $owner->guid;
             $comment['owner']['name'] = $owner->name;
             $comment['owner']['username'] = $owner->username;
-            $comment['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $comment['owner']['avatar_url'] = getProfileIcon($owner);
 
             $comment['time_created'] = time_ago($single->time_created);
             $comment['like_count'] = likes_count_number_of_likes($single->guid);
@@ -113,9 +111,9 @@ function post_get_comments($guid, $username, $limit = 20, $offset = 0){
 
 elgg_ws_expose_function('album.getid',
     'album_getid',
-    array(
-        'username' => array ('type' => 'string', 'required' =>true),
-    ),
+    [
+        'username' => ['type' => 'string', 'required' =>true],
+    ],
     'Get album id',
     'GET',
     true,
@@ -133,7 +131,7 @@ function album_getid($username) {
         throw new InvalidParameterException('registration:usernamenotvalid');
     }
 
-    $albums = elgg_list_entitiesApi(array(
+    $albums = elgg_list_entitiesApi([
         'type' => 'object',
         'subtype' => 'album',
         'full_view' => false,
@@ -142,9 +140,9 @@ function album_getid($username) {
         'gallery_class' => 'tidypics-gallery',
         'owner_guids' => $user->guid,
         'title' => 'river',
-    ));
+    ]);
 
-    $return = array();
+    $return = [];
     $return['guid'] = 0;
     foreach($albums AS $album){
         if ($album->title == 'river' && $album->access_id != 0) {
@@ -167,17 +165,16 @@ function album_getid($username) {
         }
     }
 
-
     return $return;
 }
 
 elgg_ws_expose_function('user.river_short',
     'user_river_short',
-    array(
-        'username' => array ('type' => 'string', 'required' =>true),
-        'limit' => array ('type' => 'int', 'required' => false),
-        'offset' => array ('type' => 'int', 'required' => false),
-    ),
+    [
+        'username'  => ['type' => 'string', 'required' =>true],
+        'limit'     => ['type' => 'int', 'required' => false],
+        'offset'    => ['type' => 'int', 'required' => false],
+    ],
     "Read latest news feed",
     'GET',
     true,
@@ -197,11 +194,11 @@ function user_river_short($username, $limit=20, $offset=0) {
         throw new InvalidParameterException('registration:username not valid');
     }
 
-    $options = array(
+    $options = [
         'offset' => $offset,
         'limit' => $limit,
         'subject_guid' => $user->guid,
-    );
+    ];
 
     $activities = elgg_get_river($options);
     $handle = getRiverActivity($activities, $user, $login_user);
@@ -211,9 +208,9 @@ function user_river_short($username, $limit=20, $offset=0) {
 
 elgg_ws_expose_function('count.like_comment',
     'count_like_comment',
-    array(
-        'entity_guid' => array ('type' => 'int', 'required' => true),
-    ),
+    [
+        'entity_guid' => ['type' => 'int', 'required' => true],
+    ],
     "Get number count like and comment",
     'GET',
     true,
@@ -245,14 +242,11 @@ function count_like_comment($entity_guid)
     return $result;
 }
 
-///////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////
-
 function checkLike($like_count_guid, $user_guid)
 {
     $like = '';
     if (likes_count_number_of_likes($like_count_guid) > 0) {
-        $list = elgg_get_annotations(array('guid' => $like_count_guid, 'annotation_name' => 'likes', 'limit' => 99));
+        $list = elgg_get_annotations(['guid' => $like_count_guid, 'annotation_name' => 'likes', 'limit' => 99]);
         foreach ($list as $singlelike) {
             if ($singlelike->owner_guid == $user_guid) {
                 $like = 'like';
@@ -264,20 +258,20 @@ function checkLike($like_count_guid, $user_guid)
     }
 }
 
-function elgg_list_entitiesApi(array $options = array(), $getter = 'elgg_get_entities') {
+function elgg_list_entitiesApi($options = [], $getter = 'elgg_get_entities') {
 
     global $autofeed;
     $autofeed = true;
 
     $offset_key = isset($options['offset_key']) ? $options['offset_key'] : 'offset';
 
-    $defaults = array(
+    $defaults = [
         'offset' => (int) max(get_input($offset_key, 0), 0),
         'limit' => (int) max(get_input('limit', 10), 0),
         'full_view' => TRUE,
         'list_type_toggle' => FALSE,
         'pagination' => TRUE,
-    );
+    ];
 
     $options = array_merge($defaults, $options);
 
@@ -298,12 +292,12 @@ function elgg_list_entitiesApi(array $options = array(), $getter = 'elgg_get_ent
 }
 
 function api_get_image_comment_count($image_guid) {
-    $comments = elgg_get_entities(array(
+    $comments = elgg_get_entities([
         'type' => 'object',
         'subtype' => 'comment',
         'container_guid' => $image_guid,
         'limit' => 0,
-    ));
+    ]);
 
     return sizeof($comments);
 }
@@ -314,8 +308,8 @@ function createProfileImageBatch($guid, $timePost, $userEntity) {
     $image['title'] = $userEntity->name;
     $image['time_create'] = $timePost;
     $image['owner_guid'] = $userEntity->guid;
-    $image['icon_url'] = getProfileIcon($userEntity, 'large'); //$userEntity->getIconURL('large');
-    $image['img_url'] = getProfileIcon($userEntity, 'master'); //$userEntity->getIconURL('master');
+    $image['icon_url'] = getProfileIcon($userEntity, 'large');
+    $image['img_url'] = getProfileIcon($userEntity, 'master');
     $image['like_count'] = likes_count_number_of_likes($guid);
     $image['comment_count'] = api_get_image_comment_count($guid);
     $image['like'] = checkLike($guid, $userEntity->guid);
@@ -339,7 +333,7 @@ function createAlbumCoverImage($album_cover, $image_owner_join_date, $icon_url, 
 }
 
 function getRiverActivity($activities, $user, $login_user) {
-    $handle = array();
+    $handle = [];
     $site_url = get_config('wwwroot');
 
     foreach($activities AS $activity){
@@ -360,7 +354,7 @@ function getRiverActivity($activities, $user, $login_user) {
         $img_url="";
         $message_board="";
         $container_entity="";
-        $batch_images = array();
+        $batch_images = [];
         $isObject = false;
 
         if ($activity->subtype == "tidypics_batch"){
@@ -440,9 +434,9 @@ function getRiverActivity($activities, $user, $login_user) {
             $entityTxt = $msg . " " .$friendEntity->name;
             $icon_url = getProfileIcon($friendEntity);
             $icon_url = elgg_format_url($icon_url);
-            $img_url = getProfileIcon($friendEntity, 'master');//$friendEntity->getIconURL('master');
+            $img_url = getProfileIcon($friendEntity, 'master');
             if (strpos($img_url, 'user/defaultmaster.gif') !== false) {
-                $img_url = getProfileIcon($friendEntity, 'large');//$friendEntity->getIconURL('large');
+                $img_url = getProfileIcon($friendEntity, 'large');
             }
             $img_url = elgg_format_url($img_url);
         } else if ($activity->action_type == "update" && $activity->view == 'river/user/default/profileiconupdate') {
@@ -668,7 +662,6 @@ function getRiverActivity($activities, $user, $login_user) {
 					$entityString = elgg_get_excerpt($object->description);
 					$entityTxt = "";
 		}
-		// Custome formatting end here -- Rohit Gupta (30th Dec 2016)
 
         if ($isObject) {
             $handle[] = array(
@@ -704,22 +697,21 @@ function getRiverActivity($activities, $user, $login_user) {
  */
 function getCommentCount($activity) {
     if ($activity->subtype == "thewire") {
-        $options = array(
+        $options = [
             "metadata_name" => "wire_thread",
             "metadata_value" => $activity->object_guid,
             "type" => "object",
             "subtype" => "thewire",
             "limit" => 0,
-        );
-
+        ];
         $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
     } else {
-        $comments = elgg_get_entities(array(
+        $comments = elgg_get_entities([
             'type' => 'object',
             'subtype' => 'comment',
             'container_guid' => $activity->object_guid,
             "limit" => 0,
-        ));
+        ]);
     }
 
     $comment_count = sizeof($comments);
@@ -734,14 +726,15 @@ function getCommentCount($activity) {
 function time_ago($time,$granularity=2) {
 
     $difference = time() - $time;
-    $periods = array('decade' => 315360000,
+    $periods = ['decade' => 315360000,
         'year' => 31536000,
         'month' => 2628000,
         'week' => 604800,
         'day' => 86400,
         'hour' => 3600,
         'minute' => 60,
-        'second' => 1);
+        'second' => 1
+    ];
     if ($difference < 30) { // less than 30 seconds ago, let's say "just now
         $retval = "just now";
         return $retval;
@@ -765,14 +758,14 @@ function time_ago($time,$granularity=2) {
 function getBatchImages($id, $user_guid) {
 
     // Get images related to this batch
-    $results = elgg_get_entities_from_relationship(array(
+    $results = elgg_get_entities_from_relationship([
         'relationship' => 'belongs_to_batch',
         'relationship_guid' => $id,
         'inverse_relationship' => true,
         'type' => 'object',
         'subtype' => 'image',
         'offset' => 0,
-    ));
+    ]);
 
     $site_url = get_config('wwwroot');
     if ($results) {
@@ -823,11 +816,11 @@ function getRiverGuidPosition($guid) {
     $notFound = true;
     $offset = 0;
     while($notFound) {
-        $options = array(
+        $options = [
             'distinct' => false,
             'offset' => $offset,
             'limit' => 1,
-        );
+        ];
         $activity = elgg_get_river($options);
 
         if (sizeof($activity) > 0) {
@@ -843,3 +836,5 @@ function getRiverGuidPosition($guid) {
 
     return $offset;
 }
+
+?>
