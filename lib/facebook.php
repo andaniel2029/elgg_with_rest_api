@@ -1,20 +1,4 @@
 <?php
-/*
-Parameters Used:
-$fbData['user_profile']['accessToken'] = (string) $accessToken;
-$fbData['user_profile']['id'] = $user_id;
-$fbData['user_profile']['name'] = $profile_name;
-$fbData['user_profile']['email'] = $user_email;
-$fbData['user_profile']['username'] = $user_name;
-
-@return
-$return['success'] - true/false;
-$return['message'] - Login Status description
-$return['user_guid'] = user GUID
-$return['user_name'] = Users Profile Name
-$return['user_username'] = User Username
-$return['user_email'] = User Email
-*/
 
 function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user_name){
 	$fbData['user_profile']['accessToken'] = (string) $accessToken;
@@ -24,15 +8,15 @@ function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user
 	$fbData['user_profile']['username'] = $user_name;
 	$fbData['user_profile']['education'] = file_get_contents("https://graph.facebook.com/$user_id?fields=education&access_token=$accessToken");
 	
-		$options = array(
+		$options = [
 			'type' => 'user',
-			'plugin_user_setting_name_value_pairs' => array(
+			'plugin_user_setting_name_value_pairs' => [
 				'uid' => $fbData['user_profile']['id'],
 				'access_token' => $fbData['user_profile']['accessToken'],
-			),
+			],
 			'plugin_user_setting_name_value_pairs_operator' => 'OR',
 			'limit' => 0
-		);
+		];
 		$users = elgg_get_entities_from_plugin_user_settings($options);
 		
 	if ($users) {
@@ -55,7 +39,7 @@ function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user
 						$user->save();
 					}
 			} else {
-		// More than 1 User Found and it will return an unsuccessful return status
+				// More than 1 User Found and it will return an unsuccessful return status
 				$return['success'] = false;
 				$return['message'] = elgg_echo("Oops! Facebook user not logged in successfully");
 			}
@@ -88,14 +72,16 @@ function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user
 
 elgg_ws_expose_function('facebook.user_login',
 	"login_with_fb",
-	array('accessToken' => array ('type' => 'string'),
-		'user_id' => array ('type' => 'string'),
-		'profile_name' => array ('type' => 'string'),
-		'user_email' => array ('type' => 'string'),
-		'user_name' => array ('type' => 'string'),
-	),
+	[
+		'accessToken' 	=> ['type' => 'string'],
+		'user_id' 		=> ['type' => 'string'],
+		'profile_name' 	=> ['type' => 'string'],
+		'user_email' 	=> ['type' => 'string'],
+		'user_name' 	=> ['type' => 'string'],
+	],
 	"Register user using Facebook",
 	'GET',
     true,
-    false);
+	false);
+
 ?>

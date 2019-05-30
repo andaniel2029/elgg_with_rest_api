@@ -18,5 +18,4 @@
 * Get Direction from current location to Event Location
 */
 
-
 ?>
