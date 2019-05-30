@@ -2,7 +2,7 @@
 /**
  * Created by IntelliJ IDEA.
  * User: Daniel
- * Date: 2/12/2016
+ * Date: 5/30/2019
  * Time: 11:32 AM
  *
  *
@@ -33,7 +33,7 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
     }
 
     if($context == "all"){
-        $params = array(
+        $params = [
             'type' => 'object',
             'subtype' => 'bookmarks',
             'full_view' => false,
@@ -43,10 +43,10 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $bookmarks = elgg_get_entities($params);
     } else if ($context == 'mine') {
-        $params = array(
+        $params = [
             'type' => 'object',
             'subtype' => 'bookmarks',
             'container_guid' => $loginUser->guid,
@@ -57,10 +57,10 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $bookmarks = elgg_get_entities($params);
     } else if ($context == 'friends') {
-        $bookmarks = elgg_get_entities_from_relationship(array(
+        $bookmarks = elgg_get_entities([
             'type' => 'object',
             'subtype' => 'bookmarks',
             'full_view' => false,
@@ -71,9 +71,9 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
             'preload_owners' => true,
             'limit' => $limit,
             'offset' => $offset,
-        ));
+        ]);
     } else {
-        $params = array(
+        $params = [
             'type' => 'object',
             'subtype' => 'bookmarks',
             'full_view' => false,
@@ -83,12 +83,12 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
             'distinct' => false,
             'limit' => $limit,
             'offset' => $offset,
-        );
+        ];
         $bookmarks = elgg_get_entities($params);
     }
 
     if($bookmarks) {
-        $return = array();
+        $return = [];
         foreach($bookmarks as $single ) {
             $bookmark['guid'] = $single->guid;
 
@@ -132,23 +132,22 @@ function bookmark_get_posts($context,  $limit = 20, $offset = 0, $username, $fro
         throw new InvalidParameterException($msg);
     }
 
-
     return $return;
 }
 
 elgg_ws_expose_function('bookmark.get_posts',
     "bookmark_get_posts",
-    array(	'context' => array ('type' => 'string'),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-        'username' => array ('type' => 'string', 'required' => false),
-        'from_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
-    ),
+    [
+        'context'   => ['type' => 'string'],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+        'username'  => ['type' => 'string', 'required' => false],
+        'from_guid' => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "GET all the bookmarks",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -157,7 +156,7 @@ elgg_ws_expose_function('bookmark.get_posts',
  * @throws InvalidParameterException
  */
 function bookmark_get_post($guid, $username) {
-    $return = array();
+    $return = [];
     $bookmark = get_entity($guid);
 
     if (!elgg_instanceof($bookmark, 'object', 'bookmarks')) {
@@ -187,12 +186,12 @@ function bookmark_get_post($guid, $username) {
         $return['tags'] = $bookmark->tags;
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'comment',
         'container_guid' => $guid,
-        'limit' => 0,
-    ));
+        'limit'     => 0,
+    ]);
 
     $return['owner'] = getOwner($bookmark->owner_guid);
     $return['access_id'] = $bookmark->access_id;
@@ -206,15 +205,14 @@ function bookmark_get_post($guid, $username) {
 
 elgg_ws_expose_function('bookmark.get_post',
     "bookmark_get_post",
-
-    array('guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+    ],
     "Read a bookmark post",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -224,7 +222,7 @@ elgg_ws_expose_function('bookmark.get_post',
  * @return array
  * @throws InvalidParameterException
  */
-function bookmark_get_comments($guid, $username, $limit = 20, $offset = 0){
+function bookmark_get_comments($guid, $username, $limit = 20, $offset = 0) {
 
     if(!$username) {
         $user = elgg_get_logged_in_user_entity();
@@ -235,14 +233,13 @@ function bookmark_get_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $comments = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'comment',
+    $comments = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'comment',
         'container_guid' => $guid,
-        'limit' => $limit,
-        'offset' => $offset,
-    ));
-
+        'limit'     => $limit,
+        'offset'    => $offset,
+    ]);
 
     if($comments){
         foreach($comments as $single){
@@ -253,7 +250,7 @@ function bookmark_get_comments($guid, $username, $limit = 20, $offset = 0){
             $comment['owner']['guid'] = $owner->guid;
             $comment['owner']['name'] = $owner->name;
             $comment['owner']['username'] = $owner->username;
-            $comment['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $comment['owner']['avatar_url'] = getProfileIcon($owner);
 
             $comment['time_created'] = time_ago($single->time_created);
             $comment['like_count'] = likes_count_number_of_likes($single->guid);
@@ -269,17 +266,16 @@ function bookmark_get_comments($guid, $username, $limit = 20, $offset = 0){
 
 elgg_ws_expose_function('bookmark.get_comments',
     "blog_get_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-
-    ),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
+    ],
     "Get comments for a bookmark post",
     'GET',
     true,
     true);
-
 
 /**
  * @param $guid
@@ -316,13 +312,13 @@ function bookmark_post_comment($guid, $text){
 
         if ($comment_guid) {
             $return['success'] = $comment_guid;
-            elgg_create_river_item(array(
-                'view' => 'river/object/comment/create',
-                'action_type' => 'comment',
-                'subject_guid' => $user->guid,
-                'object_guid' => $comment_guid,
-                'target_guid' => $entity->guid,
-            ));
+            elgg_create_river_item([
+                'view'          => 'river/object/comment/create',
+                'action_type'   => 'comment',
+                'subject_guid'  => $user->guid,
+                'object_guid'   => $comment_guid,
+                'target_guid'   => $entity->guid,
+            ]);
         }
     }
     return $return;
@@ -330,14 +326,14 @@ function bookmark_post_comment($guid, $text){
 
 elgg_ws_expose_function('bookmark.post_comment',
     "bookmark_post_comment",
-    array(	'guid' => array ('type' => 'int'),
-        'text' => array ('type' => 'string'),
-    ),
+    [
+        'guid' => ['type' => 'int'],
+        'text' => ['type' => 'string'],
+    ],
     "Post a comment on a bookmark post",
     'POST',
     true,
     true);
-
 
 function bookmark_save_post($title, $address, $description, $access, $username, $tags){
     if(!$username) {
@@ -364,11 +360,8 @@ function bookmark_save_post($title, $address, $description, $access, $username, 
         $access_id = -2;
     }
 
-//    $share = get_input('share');
     $container_guid = $user->guid;
 
-// don't use elgg_normalize_url() because we don't want
-// relative links resolved to this site.
     if ($address && !preg_match("#^((ht|f)tps?:)?//#i", $address)) {
         $address = "http://$address";
     }
@@ -378,7 +371,6 @@ function bookmark_save_post($title, $address, $description, $access, $username, 
         throw new InvalidParameterException('bookmarks:save:failed');
     }
 
-// see https://bugs.php.net/bug.php?id=51192
     $php_5_2_13_and_below = version_compare(PHP_VERSION, '5.2.14', '<');
     $php_5_3_0_to_5_3_2 = version_compare(PHP_VERSION, '5.3.0', '>=') &&
         version_compare(PHP_VERSION, '5.3.3', '<');
@@ -416,42 +408,37 @@ function bookmark_save_post($title, $address, $description, $access, $username, 
     $bookmark->tags = $tagarray;
 
     if ($bookmark->save()) {
-
         //add to river only if new
         if ($new) {
-            elgg_create_river_item(array(
-                'view' => 'river/object/bookmarks/create',
-                'action_type' => 'create',
-                'subject_guid' => $user->guid,
-                'object_guid' => $bookmark->getGUID(),
-            ));
-
+            elgg_create_river_item([
+                'view'          => 'river/object/bookmarks/create',
+                'action_type'   => 'create',
+                'subject_guid'  => $user->guid,
+                'object_guid'   => $bookmark->getGUID(),
+            ]);
         }
         $return['guid'] = $bookmark->guid;
     } else {
         register_error(elgg_echo('bookmarks:save:failed'));
         $return['guid'] = 0;
     }
-
     return $return;
 }
 
 elgg_ws_expose_function('bookmark.save_post',
     "bookmark_save_post",
-    array(
-        'title' => array ('type' => 'string', 'required' => true),
-        'address' => array ('type' => 'string', 'required' => true),
-        'description' => array ('type' => 'string', 'required' => true,),
-        'access' => array ('type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS),
-        'username' => array ('type' => 'string', 'required' => true),
-        'tags' => array ('type' => 'string', 'required' => false, 'default' => ""),
-    ),
+    [
+        'title'         => ['type' => 'string', 'required' => true],
+        'address'       => ['type' => 'string', 'required' => true],
+        'description'   => ['type' => 'string', 'required' => true],
+        'access'        => ['type' => 'string', 'required' => true, 'default'=>ACCESS_FRIENDS],
+        'username'      => ['type' => 'string', 'required' => true],
+        'tags'          => ['type' => 'string', 'required' => false, 'default' => ""],
+    ],
     "Post a bookmark post",
     'POST',
     true,
     true);
-
-
 
 function getOwner($guid) {
     $entity = get_entity($guid);
@@ -459,7 +446,7 @@ function getOwner($guid) {
     $owner['guid'] = $guid;
     $owner['name'] = $entity->name;
     $owner['username'] = $entity->username;
-    $owner['avatar_url'] = getProfileIcon($entity); //$entity->getIconURL('small');;
+    $owner['avatar_url'] = getProfileIcon($entity);
 
     return $owner;
 }
@@ -483,7 +470,7 @@ function getBookmarkGuidPosition($guid, $context, $loginUser) {
     $offset = 0;
     while($notFound) {
         if($context == "all"){
-            $params = array(
+            $params = [
                 'type' => 'object',
                 'subtype' => 'bookmarks',
                 'full_view' => false,
@@ -493,10 +480,10 @@ function getBookmarkGuidPosition($guid, $context, $loginUser) {
                 'distinct' => false,
                 'limit' => 1,
                 'offset' => $offset,
-            );
+            ];
             $bookmarks = elgg_get_entities($params);
         } else if ($context == 'mine') {
-            $params = array(
+            $params = [
                 'type' => 'object',
                 'subtype' => 'bookmarks',
                 'container_guid' => $loginUser->guid,
@@ -507,10 +494,10 @@ function getBookmarkGuidPosition($guid, $context, $loginUser) {
                 'distinct' => false,
                 'limit' => 1,
                 'offset' => $offset,
-            );
+            ];
             $bookmarks = elgg_get_entities($params);
         } else if ($context == 'friends') {
-            $bookmarks = elgg_get_entities_from_relationship(array(
+            $bookmarks = elgg_get_entities([
                 'type' => 'object',
                 'subtype' => 'bookmarks',
                 'full_view' => false,
@@ -521,7 +508,7 @@ function getBookmarkGuidPosition($guid, $context, $loginUser) {
                 'preload_owners' => true,
                 'limit' => 1,
                 'offset' => $offset,
-            ));
+            ]);
         }
 
         if (sizeof($bookmarks) > 0) {
@@ -534,6 +521,7 @@ function getBookmarkGuidPosition($guid, $context, $loginUser) {
             $notFound = false;
         }
     }
-
     return $offset;
 }
+
+?>
