@@ -1,6 +1,5 @@
 <?php
 
-
 function auth_token_check($token, $username, $password)
 {
 
@@ -22,28 +21,29 @@ function auth_token_check($token, $username, $password)
 
 elgg_ws_expose_function('auth.token_check',
     "auth_token_check",
-    array( 'token' => array ('type' => 'string', 'required' => true),
-        'username' => array ('type' => 'string', 'required' => true),
-        'password' => array ('type' => 'string', 'required' => true),
-    ),
+    [   'token'     => ['type' => 'string', 'required' => true],
+        'username'  => ['type' => 'string', 'required' => true],
+        'password'  => ['type' => 'string', 'required' => true],
+    ],
     "Post a auth token check",
     'POST',
     true,
     false);
 
 function get_api_key() {
-    $list = elgg_get_entities(array(
-        'type' => 'object',
-        'subtype' => 'api_key',
-    ));
+    $list = elgg_get_entities([
+        'type'      => 'object',
+        'subtype'   => 'api_key',
+    ]);
 
     $api_key='';
+
     if ($list) {
         if(sizeof($list) === 1) {
             $entity = get_entity($list[0]->guid);
             $api_key = $entity->public;
         } else {
-            foreach($list as $item){
+            foreach($list as $item) {
                 $entity = get_entity($item->get('guid'));
                 if ($entity->title == 'android') {
                     $api_key = $entity->public;
@@ -62,3 +62,5 @@ function get_gcm_sender_id() {
     }
     return $gcm_sender_id;
 }
+
+?>

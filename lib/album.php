@@ -98,7 +98,6 @@ function album_get_posts($context,  $limit = 20, $offset = 0, $username) {
             $album['cover_icon_url'] = $image_icon_url;
             $album['cover_image_url'] = $image_url;
 
-
             if ($single->title != null) {
                 $album['title'] = $single->title;
             } else {
@@ -151,3 +150,5 @@ elgg_ws_expose_function('album.get_posts',
     'GET',
     true,
     true);
+
+?>

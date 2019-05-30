@@ -140,3 +140,5 @@ function getActivityGuidPosition($guid, $context, $loginUser) {
 
     return $offset;
 }
+
+?>
