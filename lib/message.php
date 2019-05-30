@@ -38,9 +38,9 @@ function messages_read($guid) {
 
 elgg_ws_expose_function('messages.read',
 				"messages_read",
-				array(
-					  'guid' => array ('type' => 'int', 'required' => true),
-					),
+				[
+					'guid' => ['type' => 'int', 'required' => true],
+				],
 				"Read a single message",
 				'GET',
 				true,
@@ -58,8 +58,7 @@ function messages_count() {
 
 elgg_ws_expose_function('messages.count',
 				"messages_count",
-				array(
-					),
+				[],
 				"Get a count of the users unread messages",
 				'GET',
 				true, true);
@@ -78,16 +77,16 @@ function messages_inbox($limit = 20, $offset = 0) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
 
-	$params = array(
-		'type' => 'object',
-		'subtype' => 'messages',
-		'metadata_name' => 'toId',
-		'metadata_value' => $user->guid,
-		'owner_guid' => $user->guid,
-        'offset' => $offset,
-        'limit' => $limit,
+	$params = [
+		'type' 		=> 'object',
+		'subtype' 	=> 'messages',
+		'metadata_name' 	=> 'toId',
+		'metadata_value' 	=> $user->guid,
+		'owner_guid' 		=> $user->guid,
+        'offset' 	=> $offset,
+        'limit' 	=> $limit,
 		'full_view' => false,
-    );
+	];
 	
 	$list = elgg_get_entities_from_metadata($params);
 
@@ -100,7 +99,7 @@ function messages_inbox($limit = 20, $offset = 0) {
 			$message['user']['guid'] = $user->guid;
 			$message['user']['name'] = $user->name;
 			$message['user']['username'] = $user->username;
-			$message['user']['avatar_url'] = getProfileIcon($user); //$user->getIconURL('small');
+			$message['user']['avatar_url'] = getProfileIcon($user);
 			
 			$message['timestamp'] = time_ago((int)$single->time_created);
 			
@@ -123,10 +122,10 @@ function messages_inbox($limit = 20, $offset = 0) {
 
 elgg_ws_expose_function('messages.inbox',
 				"messages_inbox",
-				array(
-					  'limit' => array ('type' => 'int', 'required' => false),
-					  'offset' => array ('type' => 'int', 'required' => false),
-					),
+				[
+					'limit'		=> ['type' => 'int', 'required' => false],
+					'offset'	=> ['type' => 'int', 'required' => false],
+				],
 				"Get messages inbox",
 				'GET',
 				true,
@@ -147,30 +146,28 @@ function messages_sent($limit = 10, $offset = 0) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
 
-	$params = array(
-		'type' => 'object',
-		'subtype' => 'messages',
-		'metadata_name' => 'fromId',
-		'metadata_value' => $user->guid,
-		'owner_guid' => $user->guid,
-        'offset' => $offset,
-        'limit' => $limit,
+	$params = [
+		'type' 		=> 'object',
+		'subtype' 	=> 'messages',
+		'metadata_name' 	=> 'fromId',
+		'metadata_value' 	=> $user->guid,
+		'owner_guid' 		=> $user->guid,
+        'offset' 	=> $offset,
+        'limit' 	=> $limit,
 		'full_view' => false,
-	);
-	
+	];
 	
 	$list = elgg_get_entities_from_metadata($params);
 	if($list) {
 		foreach($list as $single ) {
 			$message['guid'] = $single->guid;
 			$message['subject'] = $single->title;
-			
 
 			$user = get_entity($single->toId);
 			$message['user']['guid'] = $user->guid;
 			$message['user']['name'] = $user->name;
 			$message['user']['username'] = $user->username;
-			$message['user']['avatar_url'] = getProfileIcon($user); //$user->getIconURL('small');
+			$message['user']['avatar_url'] = getProfileIcon($user);
 			
 			$message['timestamp'] = time_ago((int)$single->time_created);
 			
@@ -193,10 +190,10 @@ function messages_sent($limit = 10, $offset = 0) {
 
 elgg_ws_expose_function('messages.sent',
 				"messages_sent",
-				array(
-					  'limit' => array ('type' => 'int', 'required' => false),
-					  'offset' => array ('type' => 'int', 'required' => false),
-					),
+				[
+					'limit' 	=> ['type' => 'int', 'required' => false],
+					'offset' 	=> ['type' => 'int', 'required' => false],
+				],
 				"Get sent",
 				'GET',
 				true,
@@ -232,17 +229,16 @@ function message_send($subject,$body, $send_to, $reply = 0) {
 
 elgg_ws_expose_function('message.send',
 				"message_send",
-				array(
-						'subject' => array ('type' => 'string'),
-						'body' => array ('type' => 'string'),
-					  	'send_to' => array ('type' => 'string'),
-						'reply' => array ('type' => 'int', 'required' => false, 'default'=>0),
-					),
+				[
+					'subject' 	=> ['type' => 'string'],
+					'body' 		=> ['type' => 'string'],
+					'send_to' 	=> ['type' => 'string'],
+					'reply' 	=> ['type' => 'int', 'required' => false, 'default'=>0],
+				],
 				"Send a message",
 				'POST',
 				true,
 				true);
-
 
 /**
  * @param $guid
@@ -270,9 +266,9 @@ function messages_delete($guid) {
 
 elgg_ws_expose_function('messages.delete',
 	"messages_delete",
-	array(
-		'guid' => array ('type' => 'int', 'required' => true),
-	),
+	[
+		'guid' => ['type' => 'int', 'required' => true],
+	],
 	"Delete a message",
 	'POST',
 	true,
@@ -305,9 +301,9 @@ function messages_mark_as_unread($guid) {
 
 elgg_ws_expose_function('messages.mark_as_unread',
 	"messages_mark_as_unread",
-	array(
-		'guid' => array ('type' => 'int', 'required' => true),
-	),
+	[
+		'guid' => ['type' => 'int', 'required' => true],
+	],
 	"Unread a message",
 	'POST',
 	true,
@@ -348,14 +344,13 @@ function messages_mark_all_as_read($guidString)
 
 elgg_ws_expose_function('messages.mark_all_as_read',
 	"messages_mark_all_as_read",
-	array(
-		'guidString' => array ('type' => 'string', 'required' => true),
-	),
+	[
+		'guidString' => ['type' => 'string', 'required' => true],
+	],
 	"Mark all select messages as read",
 	'POST',
 	true,
 	true);
-
 
 /**
  * Web service to read a message
@@ -367,7 +362,6 @@ elgg_ws_expose_function('messages.mark_all_as_read',
  */
 function messages_mark_all_as_unread($guidString)
 {
-
     $guidArray = string_to_tag_array($guidString);
 
     foreach ($guidArray as $guid) {
@@ -379,7 +373,6 @@ function messages_mark_all_as_unread($guidString)
             $message['message'] = 'fail';
         } else {
             $single->readYet = 0;
-
             $message['guid'] = $guid;
             $message['message'] = 'success';
         }
@@ -392,18 +385,16 @@ function messages_mark_all_as_unread($guidString)
 
 elgg_ws_expose_function('messages.mark_all_as_unread',
     "messages_mark_all_as_unread",
-    array(
-        'guidString' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'guidString' => ['type' => 'string', 'required' => true],
+	],
     "Mark all select messages as unread",
     'POST',
     true,
     true);
 
-
 function messages_multiple_delete($guidString)
 {
-
     $guidArray = string_to_tag_array($guidString);
 
     foreach ($guidArray as $guid) {
@@ -431,10 +422,12 @@ function messages_multiple_delete($guidString)
 
 elgg_ws_expose_function('messages.multiple_delete',
     "messages_multiple_delete",
-    array(
-        'guidString' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+        'guidString' => ['type' => 'string', 'required' => true],
+	],
     "Multiple messages delete",
     'POST',
     true,
-    true);
+	true);
+
+?>
