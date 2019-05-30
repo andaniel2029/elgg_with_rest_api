@@ -145,3 +145,4 @@ class DB_Register_Functions {
 
 }
 
+?>

@@ -613,7 +613,7 @@ function getRiverActivity($activities, $user, $login_user) {
 				}
 
 				$url = $performed_by->name;
-				$entityString = elgg_echo('badges:river:assigned', array($url, $badge->title)) . "<br>" . $badge_view;
+				$entityString = elgg_echo('badges:river:assigned', [$url, $badge->title]) . "<br>" . $badge_view;
 				$entityTxt = 'A new Badge was awarded!';
 			}
 		} else if ($activity->view == 'river/event_relationship/create') {
@@ -626,7 +626,7 @@ function getRiverActivity($activities, $user, $login_user) {
 
 					$relationtype = $event->getRelationshipByUser($user->getGUID()); 
 					$entityTxt = "posted a new event!";
-					$entityString = elgg_echo("event_manager:river:event_relationship:create:" . $relationtype, array($subject_url, $event_url));
+					$entityString = elgg_echo("event_manager:river:event_relationship:create:" . $relationtype, [$subject_url, $event_url]);
 		} else if ($activity->view == 'river/object/event/create') {
 					$isObject = true;
 					$object = $activity->getObjectEntity();
@@ -664,7 +664,7 @@ function getRiverActivity($activities, $user, $login_user) {
 		}
 
         if ($isObject) {
-            $handle[] = array(
+            $handle[] = [
                 'id' => $activity->id,
                 'time' => time_ago($activity->posted),
                 'type' => $activity->type,
@@ -684,7 +684,7 @@ function getRiverActivity($activities, $user, $login_user) {
                 'like' => $activity_like,
                 'comment_count' => $activity_comment_count,
                 'batch_images' => $batch_images
-            );
+            ];
         }
     }
 
