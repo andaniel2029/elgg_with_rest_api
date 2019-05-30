@@ -1,61 +1,20 @@
 <?php
+/**
+ * Elgg web services API plugin
+ */
 
-// Elgg web services API plugin
 
-elgg_register_event_handler('init', 'system', 'ws_init');
-
+/**
+ * Web services init
+ *
+ * @return void
+ */
 function ws_init() {
 	$lib_dir = __DIR__ . "/lib";
-	elgg_register_library('elgg:ws', "$lib_dir/web_services.php");
-	elgg_register_library('elgg:ws:api_user', "$lib_dir/api_user.php");
-	elgg_register_library('elgg:ws:client', "$lib_dir/client.php");
-	elgg_register_library('elgg:ws:tokens', "$lib_dir/tokens.php");
-	elgg_register_library('elgg:ws:core', "$lib_dir/core.php");
-    elgg_register_library('elgg:ws:user', "$lib_dir/user.php");
-    elgg_register_library('elgg:ws:message', "$lib_dir/message.php");
-    elgg_register_library('elgg:ws:likes', "$lib_dir/likes.php");
-    elgg_register_library('elgg:ws:wire', "$lib_dir/wire.php");
-	elgg_register_library('elgg:ws:image', "$lib_dir/image.php");
-	elgg_register_library('elgg:ws:gcm_register', "$lib_dir/gcm_register.php");
-	elgg_register_library('elgg:ws:file', "$lib_dir/file.php");
-	elgg_register_library('elgg:ws:site', "$lib_dir/site.php");
-	elgg_register_library('elgg:ws:auth', "$lib_dir/auth.php");
-	elgg_register_library('elgg:ws:blog', "$lib_dir/blog.php");
-	elgg_register_library('elgg:ws:album', "$lib_dir/album.php");
-	elgg_register_library('elgg:ws:bookmark', "$lib_dir/bookmark.php");
-	elgg_register_library('elgg:ws:group', "$lib_dir/group.php");
-	elgg_register_library('elgg:ws:activity', "$lib_dir/activity.php");
-	elgg_register_library('elgg:ws:facebook', "$lib_dir/facebook.php");
-	elgg_register_library('elgg:ws:events', "$lib_dir/events.php");
-	elgg_register_library('elgg:ws:search', "$lib_dir/search.php");
-	elgg_register_library('elgg:ws:site_notifications', "$lib_dir/site_notifications.php");
-	elgg_register_library('elgg:ws:web_login', "$lib_dir/web_login.php");
-	
-	elgg_load_library('elgg:ws:api_user');
-	elgg_load_library('elgg:ws:tokens');
-	elgg_load_library('elgg:ws:core');
-    elgg_load_library('elgg:ws:user');
-    elgg_load_library('elgg:ws:message');
-    elgg_load_library('elgg:ws:likes');
-    elgg_load_library('elgg:ws:wire');
-	elgg_load_library('elgg:ws:image');
-	elgg_load_library('elgg:ws:gcm_register');
-	elgg_load_library('elgg:ws:file');
-	elgg_load_library('elgg:ws:site');
-	elgg_load_library('elgg:ws:auth');
-	elgg_load_library('elgg:ws:blog');
-	elgg_load_library('elgg:ws:album');
-	elgg_load_library('elgg:ws:bookmark');
-	elgg_load_library('elgg:ws:group');
-	elgg_load_library('elgg:ws:activity');
-	elgg_load_library('elgg:ws:facebook');
-	elgg_load_library('elgg:ws:events');
-	elgg_load_library('elgg:ws:search');
-	elgg_load_library('elgg:ws:site_notifications');
-	elgg_load_library('elgg:ws:web_login');
-	
-	
-	elgg_register_page_handler('services', 'ws_page_handler');
+	\Elgg\Includer::requireFileOnce("$lib_dir/web_services.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/api_user.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/client.php");
+	\Elgg\Includer::requireFileOnce("$lib_dir/tokens.php");
 
 	// Register a service handler for the default web services
 	// The name rest is a misnomer as they are not RESTful
@@ -69,53 +28,22 @@ function ws_init() {
 	elgg_ws_expose_function(
 		"auth.gettoken",
 		"auth_gettoken",
-		array(
-			'username' => array ('type' => 'string'),
-			'password' => array ('type' => 'string'),
-		),
+		[
+			'username' =>  ['type' => 'string'],
+			'password' =>  ['type' => 'string'],
+		],
 		elgg_echo('auth.gettoken'),
 		'POST',
 		false,
 		false
 	);
 
-	elgg_register_plugin_hook_handler('unit_test', 'system', 'ws_unit_test');
-	elgg_register_plugin_hook_handler('send', 'notification:site', 'mobile_notifications_send');
-
 	elgg_register_plugin_hook_handler('rest:output', 'system.api.list', 'ws_system_api_list_hook');
 }
 
 /**
- * Send an Mobile notification
- *
- * @param string $hook   Hook name
- * @param string $type   Hook type
- * @param bool   $result Has anyone sent a message yet?
- * @param array  $params Hook parameters
- * @return bool
- * @access private
- */
-function mobile_notifications_send($hook, $type, $result, $params) {
-
-	// Sender and Recipient Information to get name and username
-	$message = $params['notification'];
-	$sender = $message->getSender();
-	$recipient = $message->getRecipient();
-
-	//Send GCN to Mobile
-	include_once elgg_get_plugins_path().'elgg_with_rest_api/lib/GCM.php';
-	$gcm = new GCM();
-	$result = $gcm->setup_message($sender->name, $sender->username, $recipient->name, $recipient->username, $message->subject, $message->body);
-	if ($result) {
-		error_log("[".date(DATE_RFC2822)."] Message sent successfully: ". $sender->name . ", " . $sender->username . ", " . $recipient->name . ", " . $recipient->username . ", " . $message->subject . ", " . $message->body . PHP_EOL, 3, "web_error_log");
-	} else {
-		error_log("[".date(DATE_RFC2822)."] Failed to send message: ". $sender->name . ", " . $sender->username . ", " . $recipient->name . ", " . $recipient->username . ", " . $message->subject . ", " . $message->body . PHP_EOL, 3, "web_error_log");
-	}
-}
-
-/**
  * Handle a web service request
- * 
+ *
  * Handles requests of format: http://site/services/api/handler/response_format/request
  * The first element after 'services/api/' is the service handler name as
  * registered by {@link register_service_handler()}.
@@ -126,13 +54,12 @@ function mobile_notifications_send($hook, $type, $result, $params) {
  * function registered by {@link register_service_handler()}.
  *
  * If a service handler isn't found, a 404 header is sent.
- * 
+ *
  * @param array $segments URL segments
+ *
  * @return bool
  */
 function ws_page_handler($segments) {
-	elgg_load_library('elgg:ws');
-
 	if (!isset($segments[0]) || $segments[0] != 'api') {
 		return false;
 	}
@@ -167,11 +94,11 @@ function ws_page_handler($segments) {
  *  )
  */
 global $API_METHODS;
-$API_METHODS = array();
+$API_METHODS = [];
 
 /** Define a global array of errors */
 global $ERRORS;
-$ERRORS = array();
+$ERRORS = [];
 
 /**
  * Expose a function as a web service.
@@ -180,64 +107,75 @@ $ERRORS = array();
  * It also cannot handle arrays of bools or arrays of arrays.
  * Also, input will be filtered to protect against XSS attacks through the web services.
  *
- * @param string $method            The api name to expose - for example "myapi.dosomething"
- * @param string $function          Your function callback.
- * @param array  $parameters        (optional) List of parameters in the same order as in
- *                                  your function. Default values may be set for parameters which
- *                                  allow REST api users flexibility in what parameters are passed.
- *                                  Generally, optional parameters should be after required
- *                                  parameters.
+ * @param string   $method            The api name to expose - for example "myapi.dosomething"
+ * @param callable $function          Callable to handle API call
+ * @param array    $parameters        (optional) List of parameters in the same order as in
+ *                                    your function. Default values may be set for parameters which
+ *                                    allow REST api users flexibility in what parameters are passed.
+ *                                    Generally, optional parameters should be after required
+ *                                    parameters. If an optional parameter is not set and has no default,
+ *                                    the API callable will receive null.
  *
- *                                  This array should be in the format
- *                                    "variable" = array (
- *                                  					type => 'int' | 'bool' | 'float' | 'string' | 'array'
- *                                  					required => true (default) | false
- *                                  					default => value (optional)
+ *                                    This array should be in the format
+ *                                      "variable" = array (
+ *                                          type => 'int' | 'bool' | 'float' | 'string' | 'array'
+ *                                          required => true (default) | false
+ *                                  	    default => value (optional)
  *                                  	 )
- * @param string $description       (optional) human readable description of the function.
- * @param string $call_method       (optional) Define what http method must be used for
- *                                  this function. Default: GET
- * @param bool   $require_api_auth  (optional) (default is false) Does this method
- *                                  require API authorization? (example: API key)
- * @param bool   $require_user_auth (optional) (default is false) Does this method
- *                                  require user authorization?
+ * @param string   $description       (optional) human readable description of the function.
+ * @param string   $call_method       (optional) Define what http method must be used for
+ *                                    this function. Default: GET
+ * @param bool     $require_api_auth  (optional) (default is false) Does this method
+ *                                    require API authorization? (example: API key)
+ * @param bool     $require_user_auth (optional) (default is false) Does this method
+ *                                    require user authorization?
+ * @param bool     $assoc             (optional) If set to true, the callback function will receive a single argument
+ *                                    that contains an associative array of parameter => input pairs for the method.
  *
  * @return bool
  * @throws InvalidParameterException
  */
-function elgg_ws_expose_function($method, $function, array $parameters = NULL, $description = "",
-		$call_method = "GET", $require_api_auth = false, $require_user_auth = false) {
+function elgg_ws_expose_function(
+	$method,
+	$function,
+	$parameters = null,
+	$description = "",
+	$call_method = "GET",
+	$require_api_auth = false,
+	$require_user_auth = false,
+	$assoc = false
+) {
 
 	global $API_METHODS;
 
-	if (($method == "") || ($function == "")) {
+	if (empty($method) || empty($function)) {
 		$msg = elgg_echo('InvalidParameterException:APIMethodOrFunctionNotSet');
 		throw new InvalidParameterException($msg);
 	}
 
 	// does not check whether this method has already been exposed - good idea?
-	$API_METHODS[$method] = array();
+	$API_METHODS[$method] = [];
 
 	$API_METHODS[$method]["description"] = $description;
 
 	// does not check whether callable - done in execute_method()
 	$API_METHODS[$method]["function"] = $function;
 
-	if ($parameters != NULL) {
+	if ($parameters != null) {
 		if (!is_array($parameters)) {
-			$msg = elgg_echo('InvalidParameterException:APIParametersArrayStructure', array($method));
+			$msg = elgg_echo('InvalidParameterException:APIParametersArrayStructure', [$method]);
 			throw new InvalidParameterException($msg);
 		}
 
 		// catch common mistake of not setting up param array correctly
 		$first = current($parameters);
 		if (!is_array($first)) {
-			$msg = elgg_echo('InvalidParameterException:APIParametersArrayStructure', array($method));
+			$msg = elgg_echo('InvalidParameterException:APIParametersArrayStructure', [$method]);
 			throw new InvalidParameterException($msg);
 		}
 	}
 
-	if ($parameters != NULL) {
+	if ($parameters != null) {
 		// ensure the required flag is set correctly in default case for each parameter
 		foreach ($parameters as $key => $value) {
 			// check if 'required' was specified - if not, make it true
@@ -259,7 +197,7 @@ function elgg_ws_expose_function($method, $function, array $parameters = NULL, $
 			break;
 		default :
 			$msg = elgg_echo('InvalidParameterException:UnrecognisedHttpMethod',
-			array($call_method, $method));
+			[$call_method, $method]);
 
 			throw new InvalidParameterException($msg);
 	}
@@ -267,6 +205,8 @@ function elgg_ws_expose_function($method, $function, array $parameters = NULL, $
 	$API_METHODS[$method]["require_api_auth"] = $require_api_auth;
 
 	$API_METHODS[$method]["require_user_auth"] = $require_user_auth;
+
+	$API_METHODS[$method]["assoc"] = (bool) $assoc;
 
 	return true;
 }
@@ -309,13 +249,13 @@ function list_all_apis() {
  * @return bool Depending on success
  */
 function elgg_ws_register_service_handler($handler, $function) {
-	global $CONFIG;
-
-	if (!isset($CONFIG->servicehandler)) {
-		$CONFIG->servicehandler = array();
+	$servicehandler = _elgg_config()->servicehandler;
+	if (!$servicehandler) {
+		$servicehandler = [];
 	}
 	if (is_callable($function, true)) {
-		$CONFIG->servicehandler[$handler] = $function;
+		$servicehandler[$handler] = $function;
+		_elgg_config()->servicehandler = $servicehandler;
 		return true;
 	}
 
@@ -331,10 +271,11 @@ function elgg_ws_register_service_handler($handler, $function) {
  * @return void
  */
 function elgg_ws_unregister_service_handler($handler) {
-	global $CONFIG;
+	$servicehandler = _elgg_config()->servicehandler;
 
-	if (isset($CONFIG->servicehandler, $CONFIG->servicehandler[$handler])) {
-		unset($CONFIG->servicehandler[$handler]);
+	if (isset($servicehandler, $servicehandler[$handler])) {
+		unset($servicehandler[$handler]);
+		_elgg_config()->servicehandler = $servicehandler;
 	}
 }
 
@@ -360,8 +301,6 @@ function ws_rest_handler() {
 		exit;
 	}
 
-	elgg_load_library('elgg:ws');
-
 	// Register the error handler
 	error_reporting(E_ALL);
 	set_error_handler('_php_api_error_handler');
@@ -386,7 +325,6 @@ function ws_rest_handler() {
 
 	// Get parameter variables
 	$method = get_input('method');
-	$result = null;
 
 	// this will throw an exception if authentication fails
 	authenticate_method($method);
@@ -399,30 +337,12 @@ function ws_rest_handler() {
 	}
 
 	// Output the result
-	echo elgg_view_page($method, elgg_view("api/output", array("result" => $result)));
-}
-
-/**
- * Unit tests for web services
- *
- * @param string $hook   unit_test
- * @param string $type   system
- * @param mixed  $value  Array of tests
- * @param mixed  $params Params
- *
- * @return array
- * @access private
- */
-function ws_unit_test($hook, $type, $value, $params) {
-	elgg_load_library('elgg:ws');
-	elgg_load_library('elgg:ws:client');
-	$value[] = dirname(__FILE__) . '/tests/ElggCoreWebServicesApiTest.php';
-	return $value;
+	echo elgg_view_page($method, elgg_view("api/output", ["result" => $result]));
 }
 
 /**
  * Filters system API list to remove PHP internal function names
- * 
+ *
  * @param string $hook   "rest:output"
  * @param string $type   "system.api.list"
  * @param array  $return API list
@@ -432,10 +352,14 @@ function ws_unit_test($hook, $type, $value, $params) {
 function ws_system_api_list_hook($hook, $type, $return, $params) {
 
 	if (!empty($return) && is_array($return)) {
-		foreach($return as $method => $settings) {
+		foreach ($return as $method => $settings) {
 			unset($return[$method]['function']);
 		}
 	}
 
 	return $return;
 }
+
+return function() {
+	elgg_register_event_handler('init', 'system', 'ws_init');
+};
