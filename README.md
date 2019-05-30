@@ -1,7 +1,7 @@
 Elgg Web Services with REST API
 ============
 
-Documentation is available at [http://learn.elgg.org](http://learn.elgg.org/en/stable/guides/web* services.html)
+Documentation is available at [http://learn.elgg.org](http://learn.elgg.org/en/stable/guides/web-services.html)
 
 List of API's available:
 
