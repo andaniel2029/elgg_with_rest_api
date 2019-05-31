@@ -47,7 +47,6 @@ function user_get_profile($username) {
 			}
 		}
 	}
-
 	
 	$core['name'] = $user->name;
 	$core['username'] = $user->username;
@@ -57,7 +56,6 @@ function user_get_profile($username) {
 	$profile_info['avatar_url'] = getProfileIcon($user);
 	return $profile_info;
 }
-
 
 /**
  * Web service to update profile information
@@ -84,7 +82,7 @@ function user_save_profile($username, $profile) {
 		$value = html_entity_decode($value, ENT_COMPAT, 'UTF-8');
 
 		if ($valuetype != 'longtext' && elgg_strlen($value) > 250) {
-			$error = elgg_echo('profile:field_too_long', array(elgg_echo("profile:{$shortname}")));
+			$error = elgg_echo('profile:field_too_long', [elgg_echo("profile:{$shortname}")]);
 			return $error;
 		}
 
@@ -106,10 +104,10 @@ function user_save_profile($username, $profile) {
 	
 	if (sizeof($input) > 0) {
 		foreach ($input as $shortname => $value) {
-			$options = array(
+			$options = [
 				'guid' => $owner->guid,
 				'metadata_name' => $shortname
-			);
+			];
 			elgg_delete_metadata($options);
 			
 			if (isset($accesslevel[$shortname])) {
@@ -125,18 +123,15 @@ function user_save_profile($username, $profile) {
 					$i++;
 					$multiple = ($i > 1) ? TRUE : FALSE;
 					create_metadata($owner->guid, $shortname, $interval, 'text', $owner->guid, $access_id, $multiple);
-				}
-				
+				}				
 			} else {
 				create_metadata($owner->guid, $shortname, $value, 'text', $owner->guid, $access_id);
 			}
-		}
-		
+		}		
 	}
 	
 	return "Success";
 }
-
 
 /**
  * Web service to get all users registered with an email ID
@@ -161,8 +156,6 @@ function user_get_user_by_email($email) {
 	return $foundusers;
 }
 
-
-
 /**
  * Web service to check availability of username
  *
@@ -178,8 +171,6 @@ function user_check_username_availability($username) {
 		return false;
 	}
 }
-
-
 
 /**
  * Web service to register user
@@ -227,7 +218,6 @@ function user_register($name, $email, $username, $password) {
 	return $return;
 }
 
-
 /**
  * Web service to add as friend
  *
@@ -249,29 +239,26 @@ function user_friend_add($friend, $username) {
 	
 	$friend_user = get_user_by_username($friend);
 	if (!$friend_user) {
-		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:add:failure", [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
 	
 	if($friend_user->isFriendOf($user->guid)) {
-		$msg = elgg_echo('friends:alreadyadded', array($friend_user->name));
+		$msg = elgg_echo('friends:alreadyadded', [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
-	
 	
 	if ($user->addFriend($friend_user->guid)) {
 		// add to river
 		add_to_river('river/relationship/friend/create', 'friend', $user->guid, $friend_user->guid);
 		$return['success'] = true;
-		$return['message'] = elgg_echo('friends:add:successful' , array($friend_user->name));
+		$return['message'] = elgg_echo('friends:add:successful' , [$friend_user->name]);
 	} else {
-		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:add:failure", [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
-
-
 
 function user_friend_is_friend_of($friend, $username) {
 	if(!$username){
@@ -285,7 +272,7 @@ function user_friend_is_friend_of($friend, $username) {
 
 	$friend_user = get_user_by_username($friend);
 	if (!$friend_user) {
-		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:add:failure", [$friend_user->name]);
 		throw new InvalidParameterException($msg);
 	}
 
@@ -295,10 +282,8 @@ function user_friend_is_friend_of($friend, $username) {
 		$return['message'] = elgg_echo('NO');
 	}
 
-
 	return $return;
 }
-
 
 /**
  * Web service to remove friend
@@ -321,27 +306,23 @@ function user_friend_remove($friend,$username) {
 	
 	$friend_user = get_user_by_username($friend);
 	if (!$friend_user) {
-		$msg = elgg_echo("friends:remove:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:remove:failure", [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
 	
 	if(!$friend_user->isFriendOf($user->guid)) {
-		$msg = elgg_echo("friends:remove:notfriend", array($friend_user->name));
+		$msg = elgg_echo("friends:remove:notfriend", [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
-	
-	
-		if ($user->removeFriend($friend_user->guid)) {
-		
-		$return['message'] = elgg_echo("friends:remove:successful", array($friend->name));
+	if ($user->removeFriend($friend_user->guid)) {	
+		$return['message'] = elgg_echo("friends:remove:successful", [$friend->name]);
 		$return['success'] = true;
 	} else {
-		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:add:failure", [$friend_user->name]);
 	 	throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
-
 
 /**
  * Web service to get friends of a user
@@ -361,21 +342,21 @@ function user_get_friends($username, $limit = 10, $offset = 0) {
 	if (!$user) {
 		throw new InvalidParameterException(elgg_echo('registration:usernamenotvalid'));
 	}
-	$friends = elgg_get_entities_from_relationship(array(
-		'relationship' => 'friend',
+	$friends = elgg_get_entities([
+		'relationship' 		=> 'friend',
 		'relationship_guid' => $user->guid,
-		'type' => 'user',
-		'subtype' => "",
-		'limit' => $limit,
-		'offset' => $offset
-	));
+		'type' 		=> 'user',
+		'subtype'	=> "",
+		'limit' 	=> $limit,
+		'offset' 	=> $offset
+	]);
 	
 	if($friends){
 	foreach($friends as $single) {
 		$friend['guid'] = $single->guid;
 		$friend['username'] = $single->username;
 		$friend['name'] = $single->name;
-		$friend['avatar_url'] = getProfileIcon($single); //$single->getIconURL('small');
+		$friend['avatar_url'] = getProfileIcon($single);
 		$friend['friend'] = 'FRIEND';
 
 		$return[] = $friend;
@@ -389,15 +370,15 @@ function user_get_friends($username, $limit = 10, $offset = 0) {
 
 elgg_ws_expose_function('user.get_friends',
 	"user_get_friends",
-	array('username' => array ('type' => 'string', 'required' => false),
-		'limit' => array ('type' => 'int', 'required' => false),
-		'offset' => array ('type' => 'int', 'required' => false),
-	),
+	[
+		'username' 	=> ['type' => 'string', 'required' => false],
+		'limit' 	=> ['type' => 'int', 'required' => false],
+		'offset' 	=> ['type' => 'int', 'required' => false],
+	],
 	"Register user",
 	'GET',
 	true,
 	true);
-
 
 /**
  * Web service to obtains the people who have made a given user a friend
@@ -424,7 +405,7 @@ function user_get_friends_of($username, $limit = 10, $offset = 0) {
 		$return['guid'] = $friend->guid;
 		$return['username'] = $friend->username;
 		$return['name'] = $friend->name;
-		$return['avatar_url'] = getProfileIcon($friend); //$friend->getIconURL('small');
+		$return['avatar_url'] = getProfileIcon($friend);
 		$success = true;
 	}
 	
@@ -433,7 +414,6 @@ function user_get_friends_of($username, $limit = 10, $offset = 0) {
 	}
 	return $return;
 }
-
 
 /**
  * Web service to retrieve the messageboard for a user
@@ -455,31 +435,31 @@ function user_get_messageboard($limit = 10, $offset = 0, $username){
 		}
 	}
 	
-$options = array(
-	'annotations_name' => 'messageboard',
-	'guid' => $user->guid,
-	'limit' => $limit,
-	'pagination' => false,
-	'reverse_order_by' => true,
-);
+	$options = [
+		'annotations_name' => 'messageboard',
+		'guid' 	=> $user->guid,
+		'limit' => $limit,
+		'pagination' 		=> false,
+		'reverse_order_by' 	=> true,
+	];
 
 	$messageboard = elgg_get_annotations($options);
 	
 	if($messageboard){
-	foreach($messageboard as $single){
-		$post['id'] = $single->id;
-		$post['description'] = $single->value;
-		
-		$owner = get_entity($single->owner_guid);
-		$post['owner']['guid'] = $owner->guid;
-		$post['owner']['name'] = $owner->name;
-		$post['owner']['username'] = $owner->username;
-		$post['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
-		
-		$post['time_created'] = (int)$single->time_created;
-		$return[] = $post;
-	}
-} else {
+		foreach($messageboard as $single){
+			$post['id'] = $single->id;
+			$post['description'] = $single->value;
+			
+			$owner = get_entity($single->owner_guid);
+			$post['owner']['guid'] = $owner->guid;
+			$post['owner']['name'] = $owner->name;
+			$post['owner']['username'] = $owner->username;
+			$post['owner']['avatar_url'] = getProfileIcon($owner);
+			
+			$post['time_created'] = (int)$single->time_created;
+			$return[] = $post;
+		}
+	} else {
 		$msg = elgg_echo('messageboard:none');
 		throw new InvalidParameterException($msg);
 	}
@@ -523,7 +503,6 @@ function user_post_messageboard($text, $to, $from){
 	return $return;
 }
 
-
 /**
  * Web service to get list members
  *
@@ -545,12 +524,12 @@ function user_list_members($username, $limit = 20, $offset = 0)
 		}
 	}
 
-    $options = array(
-        'type' => 'user',
+    $options = [
+        'type' 		=> 'user',
         'full_view' => false,
-		'offset' => $offset,
-		'limit' => $limit,
-    );
+		'offset' 	=> $offset,
+		'limit' 	=> $limit,
+	];
 
     if ($user) {
         $results = get_elgg_list_members($options);
@@ -563,7 +542,7 @@ function user_list_members($username, $limit = 20, $offset = 0)
                     $member['guid'] = $result->get("guid");
                     $member['name'] = $result->get("name");
                     $member['username'] = $result->get("username");
-                    $member['avatar_url'] = getProfileIcon($result); //$result->getIconURL('small');
+                    $member['avatar_url'] = getProfileIcon($result);
 
                     if ($friend_user->isFriendOf($user->guid)) {
                         $member['friend'] = 'FRIEND';
@@ -584,31 +563,30 @@ function user_list_members($username, $limit = 20, $offset = 0)
 
 elgg_ws_expose_function('user.list_members',
 	"user_list_members",
-	array('username' => array ('type' => 'string', 'required' => true),
-		'limit' => array ('type' => 'int', 'required' => false),
-		'offset' => array ('type' => 'int', 'required' => false),
-	),
+	[
+		'username' 	=> ['type' => 'string', 'required' => true],
+		'limit' 	=> ['type' => 'int', 'required' => false],
+		'offset' 	=> ['type' => 'int', 'required' => false],
+	],
 	"list members",
 	'GET',
 	true,
 	true);
 
-
-
-function get_elgg_list_members(array $options = array(), $getter = 'elgg_get_entities') {
+function get_elgg_list_members($options = [], $getter = 'elgg_get_entities') {
 
     global $autofeed;
     $autofeed = true;
 
     $offset_key = isset($options['offset_key']) ? $options['offset_key'] : 'offset';
 
-    $defaults = array(
-        'offset' => (int) max(get_input($offset_key, 0), 0),
-        'limit' => (int) max(get_input('limit', 10), 0),
+    $defaults = [
+        'offset' 	=> (int) max(get_input($offset_key, 0), 0),
+        'limit' 	=> (int) max(get_input('limit', 10), 0),
         'full_view' => FALSE,
-        'list_type_toggle' => FALSE,
-        'pagination' => TRUE,
-    );
+        'list_type_toggle' 	=> FALSE,
+        'pagination' 		=> TRUE,
+	];
 
     $options = array_merge($defaults, $options);
 
@@ -639,14 +617,14 @@ function user_search($username, $limit = 20, $offset = 0, $search_name)
 {
     $db_prefix = elgg_get_config('dbprefix');
 
-    $options = array(
-        'type' => 'user',
+    $options = [
+        'type' 		=> 'user',
         'full_view' => false,
-        'joins' => array("JOIN {$db_prefix}users_entity u ON e.guid=u.guid"),
-        'wheres' => array("(u.name LIKE \"%{$search_name}%\" OR u.username LIKE \"%{$search_name}%\")"),
-        'offset' => (int) max(get_input('offset', 0), 0),
-        'limit' => (int) max(get_input('limit', 10), 0),
-    );
+        'joins' 	=> ["JOIN {$db_prefix}users_entity u ON e.guid=u.guid"],
+        'wheres' 	=> ["(u.name LIKE \"%{$search_name}%\" OR u.username LIKE \"%{$search_name}%\")"],
+        'offset' 	=> (int) max(get_input('offset', 0), 0),
+        'limit' 	=> (int) max(get_input('limit', 10), 0),
+	];
 
     $user = get_user_by_username($username);
     if ($user) {
@@ -660,7 +638,7 @@ function user_search($username, $limit = 20, $offset = 0, $search_name)
                     $member['guid'] = $result->get("guid");
                     $member['name'] = $result->get("name");
                     $member['username'] = $result->get("username");
-                    $member['avatar_url'] = getProfileIcon($result); //$result->getIconURL('small');
+                    $member['avatar_url'] = getProfileIcon($result);
 
                     if ($friend_user->isFriendOf($user->guid)) {
                         $member['friend'] = 'FRIEND';
@@ -682,7 +660,7 @@ function user_search($username, $limit = 20, $offset = 0, $search_name)
 
 elgg_ws_expose_function('user.get_profile_fields',
 	"user_get_profile_fields",
-	array(),
+	[],
 	"Get user profile labels",
 	'GET',
 	true,
@@ -690,8 +668,9 @@ elgg_ws_expose_function('user.get_profile_fields',
 
 elgg_ws_expose_function('user.get_profile',
 	"user_get_profile",
-	array('username' => array ('type' => 'string', 'required' => false)
-	),
+	[
+		'username' => ['type' => 'string', 'required' => false]
+	],
 	"Get user profile information",
 	'GET',
 	true,
@@ -699,9 +678,10 @@ elgg_ws_expose_function('user.get_profile',
 
 elgg_ws_expose_function('user.save_profile',
 	"user_save_profile",
-	array('username' => array ('type' => 'string'),
-		'profile' => array ('type' => 'array'),
-	),
+	[
+		'username' 	=> ['type' => 'string'],
+		'profile' 	=> ['type' => 'array'],
+	],
 	"Get user profile information with username",
 	'POST',
 	true,
@@ -709,8 +689,9 @@ elgg_ws_expose_function('user.save_profile',
 
 elgg_ws_expose_function('user.get_user_by_email',
 	"user_get_user_by_email",
-	array('email' => array ('type' => 'string'),
-	),
+	[
+		'email' => ['type' => 'string'],
+	],
 	"Get Username by email",
 	'GET',
     true,
@@ -718,8 +699,9 @@ elgg_ws_expose_function('user.get_user_by_email',
 
 elgg_ws_expose_function('user.check_username_availability',
 	"user_check_username_availability",
-	array('username' => array ('type' => 'string'),
-	),
+	[
+		'username' => ['type' => 'string'],
+	],
 	"Get Username by email",
 	'GET',
     true,
@@ -727,11 +709,12 @@ elgg_ws_expose_function('user.check_username_availability',
 
 elgg_ws_expose_function('user.register',
 	"user_register",
-	array('name' => array ('type' => 'string'),
-		'email' => array ('type' => 'string'),
-		'username' => array ('type' => 'string'),
-		'password' => array ('type' => 'string'),
-	),
+	[
+		'name' 		=> ['type' => 'string'],
+		'email' 	=> ['type' => 'string'],
+		'username' 	=> ['type' => 'string'],
+		'password' 	=> ['type' => 'string'],
+	],
 	"Register user",
 	'GET',
     true,
@@ -739,10 +722,10 @@ elgg_ws_expose_function('user.register',
 
 elgg_ws_expose_function('user.friend.add',
 	"user_friend_add",
-	array(
-		'friend' => array ('type' => 'string'),
-		'username' => array ('type' => 'string', 'required' =>false),
-	),
+	[
+		'friend' 	=> ['type' => 'string'],
+		'username' 	=> ['type' => 'string', 'required' =>false],
+	],
 	"Add a user as friend",
 	'POST',
 	true,
@@ -750,10 +733,10 @@ elgg_ws_expose_function('user.friend.add',
 
 elgg_ws_expose_function('user.friend.is.friend.of',
 	"user_friend_is_friend_of",
-	array(
-		'friend' => array ('type' => 'string'),
-		'username' => array ('type' => 'string', 'required' =>false),
-	),
+	[
+		'friend' 	=> ['type' => 'string'],
+		'username' 	=> ['type' => 'string', 'required' =>false],
+	],
 	"Check a user is friend",
 	'POST',
 	true,
@@ -761,10 +744,10 @@ elgg_ws_expose_function('user.friend.is.friend.of',
 
 elgg_ws_expose_function('user.friend.remove',
 	"user_friend_remove",
-	array(
-		'friend' => array ('type' => 'string'),
-		'username' => array ('type' => 'string', 'required' => false),
-	),
+	[
+		'friend' 	=> ['type' => 'string'],
+		'username' 	=> ['type' => 'string', 'required' => false],
+	],
 	"Remove friend",
 	'GET',
 	true,
@@ -772,10 +755,11 @@ elgg_ws_expose_function('user.friend.remove',
 
 elgg_ws_expose_function('user.friend.get_friends',
 	"user_get_friends",
-	array('username' => array ('type' => 'string', 'required' => false),
-		'limit' => array ('type' => 'int', 'required' => false),
-		'offset' => array ('type' => 'int', 'required' => false),
-	),
+	[
+		'username' 	=> ['type' => 'string', 'required' => false],
+		'limit' 	=> ['type' => 'int', 'required' => false],
+		'offset' 	=> ['type' => 'int', 'required' => false],
+	],
 	"Register user",
 	'GET',
 	false,
@@ -783,10 +767,11 @@ elgg_ws_expose_function('user.friend.get_friends',
 
 elgg_ws_expose_function('user.friend.get_friends_of',
 	"user_get_friends_of",
-	array('username' => array ('type' => 'string', 'required' => true),
-		'limit' => array ('type' => 'int', 'required' => false),
-		'offset' => array ('type' => 'int', 'required' => false),
-	),
+	[
+		'username' 	=> ['type' => 'string', 'required' => true],
+		'limit' 	=> ['type' => 'int', 'required' => false],
+		'offset' 	=> ['type' => 'int', 'required' => false],
+	],
 	"Register user",
 	'GET',
     true,
@@ -794,11 +779,11 @@ elgg_ws_expose_function('user.friend.get_friends_of',
 
 elgg_ws_expose_function('user.get_messageboard',
 	"user_get_messageboard",
-	array(
-		'limit' => array ('type' => 'int', 'required' => false, 'default' => 10),
-		'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
-		'username' => array ('type' => 'string', 'required' => false),
-	),
+	[
+		'limit' 	=> ['type' => 'int', 'required' => false, 'default' => 10],
+		'offset' 	=> ['type' => 'int', 'required' => false, 'default' => 0],
+		'username' 	=> ['type' => 'string', 'required' => false],
+	],
 	"Get a users messageboard",
 	'GET',
     true,
@@ -806,11 +791,11 @@ elgg_ws_expose_function('user.get_messageboard',
 
 elgg_ws_expose_function('user.post_messageboard',
 	"user_post_messageboard",
-	array(
-		'text' => array ('type' => 'string'),
-		'to' => array ('type' => 'string', 'required' => false),
-		'from' => array ('type' => 'string', 'required' => false),
-	),
+	[
+		'text' 	=> ['type' => 'string'],
+		'to' 	=> ['type' => 'string', 'required' => false],
+		'from' 	=> ['type' => 'string', 'required' => false],
+	],
 	"Post a messageboard post",
 	'POST',
 	true,
@@ -818,11 +803,12 @@ elgg_ws_expose_function('user.post_messageboard',
 
 elgg_ws_expose_function('user.search',
 	"user_search",
-	array('username' => array ('type' => 'string', 'required' => true),
-		'limit' => array ('type' => 'int', 'required' => false),
-		'offset' => array ('type' => 'int', 'required' => false),
-		'search_name' => array ('type' => 'string', 'required' => true),
-	),
+	[
+		'username' 		=> ['type' => 'string', 'required' => true],
+		'limit' 		=> ['type' => 'int', 'required' => false],
+		'offset' 		=> ['type' => 'int', 'required' => false],
+		'search_name' 	=> ['type' => 'string', 'required' => true],
+	],
 	"search user",
 	'GET',
 	true,
@@ -862,17 +848,19 @@ if ($user) {
 	}
 } else {
 	$return['success'] = false;
-	$return['message'] = elgg_echo('user:username:notfound', array($username));
+	$return['message'] = elgg_echo('user:username:notfound', [$username]);
 }
 return $return;
 }
 
 elgg_ws_expose_function('user.forgot_password',
 	"user_send_new_password_request",
-	array(
-	'username' => array ('type' => 'string'),
-	),
+	[
+		'username' => ['type' => 'string'],
+	],
 	"Forgot/Lost Password",
 	'GET',
     true,
-    false);
+	false);
+
+?>
