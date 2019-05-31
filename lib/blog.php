@@ -446,12 +446,7 @@ function blog_post_comment($guid, $text){
 
     $user = elgg_get_logged_in_user_entity();
 
-    $annotation = create_annotation($entity->guid,
-        'generic_comment',
-        $text,
-        "",
-        $user->guid,
-        $entity->access_id);
+    $annotation = ElggEntity::annotate($entity->guid, 'generic_comment', $text, "", $user->guid, $entity->access_id);
 
     if($annotation){
         // notify if poster wasn't owner

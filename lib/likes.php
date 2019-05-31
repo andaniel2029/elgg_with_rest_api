@@ -23,12 +23,7 @@ function likes_add($entity_guid) {
 	}
 
 	$user = elgg_get_logged_in_user_entity();
-	$annotation = create_annotation($entity->guid,
-									'likes',
-									"likes",
-									"",
-									$user->guid,
-									$entity->access_id);
+	$annotation = ElggEntity::annotate($entity->guid, 'likes', "likes", "", $user->guid, $entity->access_id);
 
 	// tell user annotation didn't work if that is the case
 	if (!$annotation) {
