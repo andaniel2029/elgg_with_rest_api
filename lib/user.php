@@ -439,8 +439,7 @@ function user_get_messageboard($limit = 10, $offset = 0, $username){
 		'annotations_name' => 'messageboard',
 		'guid' 	=> $user->guid,
 		'limit' => $limit,
-		'pagination' 		=> false,
-		'reverse_order_by' 	=> true,
+		'pagination' => false
 	];
 
 	$messageboard = elgg_get_annotations($options);
