@@ -29,11 +29,13 @@ return $return;
 
 elgg_ws_expose_function('web_login',
     "web_login",
-    array('username' => array ('type' => 'string', 'required' => true),
-        'password' => array ('type' => 'string', 'required' => true),
-    ),
+    [
+		'username' => ['type' => 'string', 'required' => true],
+        'password' => ['type' => 'string', 'required' => true],
+	],
     "Check user login for web.",
     'POST',
     false,
     false);
+
 ?>
