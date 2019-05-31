@@ -11,7 +11,7 @@ function site_get_notification($username) {
         }
     }
 	if (elgg_is_active_plugin('site_notifications')) {
-	$return['list'] = elgg_list_entities_from_metadata([
+	$return['list'] = elgg_list_entities([
 		'type' => 'object',
 		'subtype' => 'site_notification',
 		'owner_guid' => $user->guid,
