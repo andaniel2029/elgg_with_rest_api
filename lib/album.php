@@ -75,7 +75,7 @@ function album_get_posts($context,  $limit = 20, $offset = 0, $username) {
 
     $albums = elgg_get_entities($params);
 
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
     if($albums) {
         $return = [];
         foreach($albums as $single ) {

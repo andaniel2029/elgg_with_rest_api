@@ -76,7 +76,7 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
         $groups = elgg_get_entities($params);
     }
 
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
     if($groups) {
         $return = [];
         foreach($groups as $single ) {
@@ -106,7 +106,7 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
             $group['permission_public'] = $single->isPublicMembership();
             $group['content_access_mode'] = $single->getContentAccessMode();
 
-            $icon = getProfileIcon($single, 'medium'); //$single->getIconURL('medium');
+            $icon = getProfileIcon($single, 'medium');
             if (strpos($icon, 'graphics/defaultmedium.gif') !== FALSE) {
                 $group['icon'] = $icon;
             } else {
@@ -116,7 +116,7 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
             if ($single->getTags() == null) {
                 $group['tags'] = '';
             } else {
-                $group['tags'] = $single->getTags(); //$single->getTags();
+                $group['tags'] = $single->getTags();
             }
 
             $group['owner'] = getOwner($single->owner_guid);

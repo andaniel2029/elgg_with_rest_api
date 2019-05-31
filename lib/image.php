@@ -218,7 +218,7 @@ function wire_get_image_comments($guid, $username, $limit = 20, $offset = 0){
             $response['owner']['guid'] = $owner->guid;
             $response['owner']['name'] = $owner->name;
             $response['owner']['username'] = $owner->username;
-            $response['owner']['avatar_url'] = getProfileIcon($owner); // $owner->getIconURL('small');
+            $response['owner']['avatar_url'] = getProfileIcon($owner);
 
             $response['time_created'] = time_ago($comment->time_created);
             $comment['like_count'] = likes_count_number_of_likes($comment->guid);
@@ -380,7 +380,7 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
 
     $photos = elgg_get_entities($params);
 
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
     if($photos) {
         $return = [];
         foreach($photos as $single ) {

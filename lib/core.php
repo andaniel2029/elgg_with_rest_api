@@ -334,7 +334,7 @@ function createAlbumCoverImage($album_cover, $image_owner_join_date, $icon_url, 
 
 function getRiverActivity($activities, $user, $login_user) {
     $handle = [];
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
 
     foreach($activities AS $activity){
         $userEntity = get_entity($activity->subject_guid);
@@ -765,7 +765,7 @@ function getBatchImages($id, $user_guid) {
         'offset' => 0,
     ]);
 
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
     if ($results) {
         foreach ($results AS $result) {
 

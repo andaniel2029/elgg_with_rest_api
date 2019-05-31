@@ -130,7 +130,7 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
 	}
 
 	if($latest_file) {
-        $site_url = get_config('wwwroot');
+        $site_url = elgg_get_config('wwwroot');
 		foreach($latest_file as $single ) {
 			$file['guid'] = $single->guid;
 			$file['title'] = $single->title;
@@ -167,8 +167,8 @@ function file_get_files($context, $username, $limit = 20, $offset = 0, $group_gu
                 $file['file_icon_large'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=largethumb';
                 $file['file_url'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=original';
             } else {
-                $file['file_icon'] = getProfileIcon($single); //$single->getIconURL('small');
-                $file['file_icon_large'] = getProfileIcon($single, 'large'); //$single->getIconURL('large');
+                $file['file_icon'] = getProfileIcon($single);
+                $file['file_icon_large'] = getProfileIcon($single, 'large');
                 $file['file_url'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=' . $single->originalfilename;
             }
 
@@ -322,7 +322,7 @@ function file_get_file($guid, $username) {
         }
     }
 
-    $site_url = get_config('wwwroot');
+    $site_url = elgg_get_config('wwwroot');
 
     $single = get_entity($guid);
     if (!elgg_instanceof($single, 'object', 'file')) {
@@ -360,8 +360,8 @@ function file_get_file($guid, $username) {
         $file['file_icon_large'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=largethumb';
         $file['file_url'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=original';
     } else {
-        $file['file_icon'] = getProfileIcon($owner); //$single->getIconURL('small');
-        $file['file_icon_large'] = getProfileIcon($single, 'large'); //$single->getIconURL('large');
+        $file['file_icon'] = getProfileIcon($owner);
+        $file['file_icon_large'] = getProfileIcon($single, 'large');
         $file['file_url'] = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $single->guid . '&size=' . $single->originalfilename;
     }
 

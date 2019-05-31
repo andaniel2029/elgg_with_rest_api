@@ -266,7 +266,7 @@ function wire_get_comments($guid, $username, $limit = 20, $offset = 0){
             $comment['owner']['guid'] = $owner->guid;
             $comment['owner']['name'] = $owner->name;
             $comment['owner']['username'] = $owner->username;
-            $comment['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $comment['owner']['avatar_url'] = getProfileIcon($owner);
 
             $comment['time_created'] = time_ago($single->time_created);
             $comment['like_count'] = likes_count_number_of_likes($single->guid);

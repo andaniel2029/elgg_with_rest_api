@@ -813,7 +813,7 @@ elgg_ws_expose_function('user.search',
 	true);
 
 function getProfileIcon($user, $size='small') {
-	$site_url = get_config('wwwroot');
+	$site_url = elgg_get_config('wwwroot');
 
 	$profileUrl = $user->getIconURL($size);
 

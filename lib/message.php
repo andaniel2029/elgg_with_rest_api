@@ -21,7 +21,7 @@ function messages_read($guid) {
 			$message['user']['guid'] = $user->guid;
 			$message['user']['name'] = $user->name;
 			$message['user']['username'] = $user->username;
-			$message['user']['avatar_url'] = getProfileIcon($user); //$user->getIconURL('small');
+			$message['user']['avatar_url'] = getProfileIcon($user);
 			
 			$message['timestamp'] = time_ago((int)$single->time_created);
 			
