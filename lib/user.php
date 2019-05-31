@@ -122,10 +122,10 @@ function user_save_profile($username, $profile) {
 				foreach ($value as $interval) {
 					$i++;
 					$multiple = ($i > 1) ? TRUE : FALSE;
-					create_metadata($owner->guid, $shortname, $interval, 'text', $owner->guid, $access_id, $multiple);
+					ElggEntity::setMetadata($shortname, $interval, 'text', $multiple);
 				}				
 			} else {
-				create_metadata($owner->guid, $shortname, $value, 'text', $owner->guid, $access_id);
+				ElggEntity::setMetadata($shortname, $value, 'text', false);
 			}
 		}		
 	}
