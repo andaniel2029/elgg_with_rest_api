@@ -50,12 +50,12 @@ function wire_save_post($text, $access = ACCESS_PUBLIC, $wireMethod = "api", $us
 				
 elgg_ws_expose_function('wire.save_post',
 				"wire_save_post",
-				array(
-						'text' => array ('type' => 'string', 'required' => true),
-						'access' => array ('type' => 'string', 'required' => true),
-						'wireMethod' => array ('type' => 'string', 'required' => true),
-						'username' => array ('type' => 'string', 'required' => true),
-					),
+				[
+                    'text'          => ['type' => 'string', 'required' => true],
+                    'access'        => ['type' => 'string', 'required' => true],
+                    'wireMethod'    => ['type' => 'string', 'required' => true],
+                    'username'      => ['type' => 'string', 'required' => true],
+                ],
 				"Post a wire post",
 				'POST',
 				true,
@@ -81,25 +81,25 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
         }
     }
 
-    $params = array();
+    $params = [];
 	if($context == "all"){
-		$params = array(
-			'types' => 'object',
-			'subtypes' => 'thewire',
-			'limit' => $limit,
-            'offset' => $offset,
+		$params = [
+			'types'     => 'object',
+			'subtypes'  => 'thewire',
+			'limit'     => $limit,
+            'offset'    => $offset,
 			'full_view' => FALSE,
-		);
+        ];
 	}
 	if($context == "mine" || $context == "user"){
-		$params = array(
-			'types' => 'object',
-			'subtypes' => 'thewire',
-			'owner_guid' => $user->guid,
-			'limit' => $limit,
-            'offset' => $offset,
-			'full_view' => FALSE,
-		);
+		$params = [
+			'types'         => 'object',
+			'subtypes'      => 'thewire',
+			'owner_guid'    => $user->guid,
+			'limit'         => $limit,
+            'offset'        => $offset,
+			'full_view'     => FALSE,
+        ];
 	}
 
 	$latest_wire = elgg_get_entities($params);
@@ -107,21 +107,20 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
 	if($context == "friends"){
         $timelower = 0;
         $timeupper = 0;
-//		$latest_wire = get_user_friends_objects($user->guid, 'thewire', $limit, $offset);
-        $latest_wire = elgg_get_entities_from_relationship(array(
-            'type' => 'object',
-            'subtype' => 'thewire',
-            'limit' => $limit,
-            'offset' => $offset,
+        $latest_wire = elgg_get_entities_from_relationship([
+            'type'      => 'object',
+            'subtype'   => 'thewire',
+            'limit'     => $limit,
+            'offset'    => $offset,
             'created_time_lower' => $timelower,
             'created_time_upper' => $timeupper,
-            'relationship' => 'friend',
+            'relationship'      => 'friend',
             'relationship_guid' => $user->guid,
             'relationship_join_on' => 'container_guid',
-        ));
+        ]);
 	}
 
-    $return = array();
+    $return = [];
     if($latest_wire){
         foreach($latest_wire as $single ) {
             $wire['guid'] = $single->guid;
@@ -130,20 +129,20 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
             $wire['owner']['guid'] = $owner->guid;
             $wire['owner']['name'] = $owner->name;
             $wire['owner']['username'] = $owner->username;
-            $wire['owner']['avatar_url'] = getProfileIcon($owner); //$owner->getIconURL('small');
+            $wire['owner']['avatar_url'] = getProfileIcon($owner);
 
             $wire['time_created'] = time_ago($single->time_created);
             $wire['description'] = $single->description;
             $wire['like_count'] = likes_count_number_of_likes($single->guid);
             $wire['like'] = checkLike($single->guid, $user->guid);
 
-            $options = array(
+            $options = [
                 "metadata_name" => "wire_thread",
                 "metadata_value" => $single->guid,
                 "type" => "object",
                 "subtype" => "thewire",
                 "limit" => 0,
-            );
+            ];
 
             $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
             if (sizeof($comments) > 0) {
@@ -165,11 +164,12 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
 				
 elgg_ws_expose_function('wire.get_posts',
 				"wire_get_posts",
-				array(	'context' => array ('type' => 'string', 'required' => false, 'default' => 'all'),
-						'limit' => array ('type' => 'int', 'required' => false),
-						'offset' => array ('type' => 'int', 'required' => false),
-						'username' => array ('type' => 'string', 'required' =>false),
-					),
+				[
+                    'context'   => ['type' => 'string', 'required' => false, 'default' => 'all'],
+                    'limit'     => ['type' => 'int', 'required' => false],
+                    'offset'    => ['type' => 'int', 'required' => false],
+                    'username'  => ['type' => 'string', 'required' =>false],
+                ],
 				"Read latest wire post",
 				'GET',
 				true,
@@ -192,11 +192,11 @@ function wire_delete($username, $wireid) {
 	$thewire = get_entity($wireid);
 	$return['success'] = false;
 	if ($thewire->getSubtype() == "thewire" && $thewire->canEdit($user->guid)) {
-		$children = elgg_get_entities_from_relationship(array(
-			'relationship' => 'parent',
+		$children = elgg_get_entities_from_relationship([
+			'relationship'      => 'parent',
 			'relationship_guid' => $wireid,
 			'inverse_relationship' => true,
-		));
+        ]);
 		if ($children) {
 			foreach ($children as $child) {
 				$child->reply = false;
@@ -218,14 +218,14 @@ function wire_delete($username, $wireid) {
 				
 elgg_ws_expose_function('wire.delete_posts',
 				"wire_delete",
-				array('username' => array ('type' => 'string'),
-						'wireid' => array ('type' => 'int'),
-					),
+				[
+                    'username'  => ['type' => 'string'],
+                    'wireid'    => ['type' => 'int'],
+                ],
 				"Delete a wire post",
 				'POST',
 				true,
 				false);
-
 
 /**
  * @param $guid
@@ -245,18 +245,18 @@ function wire_get_comments($guid, $username, $limit = 20, $offset = 0){
         }
     }
 
-    $options = array(
+    $options = [
         "metadata_name" => "wire_thread",
         "metadata_value" => $guid,
         "type" => "object",
         "subtype" => "thewire",
         "limit" => $limit,
         "offset" => $offset,
-    );
+    ];
 
     $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
 
-    $return = array();
+    $return = [];
     if($comments){
         foreach($comments as $single){
             $comment['guid'] = $single->guid;
@@ -281,12 +281,13 @@ function wire_get_comments($guid, $username, $limit = 20, $offset = 0){
 }
 elgg_ws_expose_function('wire.get_comments',
     "wire_get_comments",
-    array(	'guid' => array ('type' => 'string'),
-        'username' => array ('type' => 'string', 'required' => false),
-        'limit' => array ('type' => 'int', 'required' => false, 'default' => 20),
-        'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+    [
+        'guid'      => ['type' => 'string'],
+        'username'  => ['type' => 'string', 'required' => false],
+        'limit'     => ['type' => 'int', 'required' => false, 'default' => 20],
+        'offset'    => ['type' => 'int', 'required' => false, 'default' => 0],
 
-    ),
+    ],
     "Get comments for a wire post",
     'GET',
     true,
@@ -330,8 +331,6 @@ function wire_post_comment($parent_guid, $text, $access = ACCESS_PUBLIC, $wireMe
         $access_id = -2;
     }
 
-
-
     $guid = thewire_save_post($text, $user->guid, $access_id, $parent_guid, $wireMethod);
     if (!$guid) {
         $return['message'] = elgg_echo("thewire:error");
@@ -343,34 +342,32 @@ function wire_post_comment($parent_guid, $text, $access = ACCESS_PUBLIC, $wireMe
 
 elgg_ws_expose_function('wire.post_comment',
     "wire_post_comment",
-    array(	'parent_guid' => array ('type' => 'int'),
-        'text' => array ('type' => 'string'),
-        'access' => array ('type' => 'string', 'required' => false),
-        'wireMethod' => array ('type' => 'string', 'required' => false),
-        'username' => array ('type' => 'string', 'required' => false),
-    ),
+    [
+        'parent_guid'   => ['type' => 'int'],
+        'text'          => ['type' => 'string'],
+        'access'        => ['type' => 'string', 'required' => false],
+        'wireMethod'    => ['type' => 'string', 'required' => false],
+        'username'      => ['type' => 'string', 'required' => false],
+    ],
     "Post a comment on a wire post",
     'POST',
     true,
     true);
 
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-function get_elgg_comments(array $options = array(), $getter = 'elgg_get_entities') {
+function get_elgg_comments($options = [], $getter = 'elgg_get_entities') {
 
     global $autofeed;
     $autofeed = true;
 
     $offset_key = isset($options['offset_key']) ? $options['offset_key'] : 'offset';
 
-    $defaults = array(
-        'offset' => (int) max(get_input($offset_key, 0), 0),
-        'limit' => (int) max(get_input('limit', 10), 0),
+    $defaults = [
+        'offset'    => (int) max(get_input($offset_key, 0), 0),
+        'limit'     => (int) max(get_input('limit', 10), 0),
         'full_view' => TRUE,
-        'list_type_toggle' => FALSE,
-        'pagination' => TRUE,
-    );
+        'list_type_toggle'  => FALSE,
+        'pagination'        => TRUE,
+    ];
 
     $options = array_merge($defaults, $options);
 
@@ -385,21 +382,19 @@ function get_elgg_comments(array $options = array(), $getter = 'elgg_get_entitie
     return $entities;
 }
 
-function elgg_list_entities_annotations(array $options = array(), $getter = 'elgg_get_entities',
-                                        $viewer = 'elgg_view_entity_list') {
-
+function elgg_list_entities_annotations($options = [], $getter = 'elgg_get_entities', $viewer = 'elgg_view_entity_list') {
     global $autofeed;
     $autofeed = true;
 
     $offset_key = isset($options['offset_key']) ? $options['offset_key'] : 'offset';
 
-    $defaults = array(
-        'offset' => (int) max(get_input($offset_key, 0), 0),
-        'limit' => (int) max(get_input('limit', 10), 0),
+    $defaults = [
+        'offset'    => (int) max(get_input($offset_key, 0), 0),
+        'limit'     => (int) max(get_input('limit', 10), 0),
         'full_view' => TRUE,
-        'list_type_toggle' => FALSE,
-        'pagination' => TRUE,
-    );
+        'list_type_toggle'  => FALSE,
+        'pagination'        => TRUE,
+    ];
 
     $options = array_merge($defaults, $options);
 
@@ -418,3 +413,5 @@ function elgg_list_entities_annotations(array $options = array(), $getter = 'elg
 
     return $entities;
 }
+
+?>
