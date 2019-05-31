@@ -92,7 +92,7 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
 
     if ($result) {
         $album->prependImageList([$image->guid]);
-        $img_river_view = elgg_get_plugin_setting('img_river_view', 'tidypics');
+        $img_river_view = elgg_get_plugin_setting('img_river_view', $plugin_id, 'tidypics');
 
         $batch = new TidypicsBatch();
         $batch->access_id = $album->access_id;
@@ -104,7 +104,7 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
             add_entity_relationship($image->guid, "belongs_to_batch", $batch->getGUID());
         }
 
-        $img_river_view = elgg_get_plugin_setting('img_river_view', 'tidypics');
+        $img_river_view = elgg_get_plugin_setting('img_river_view', $plugin_id, 'tidypics');
         // "added images to album" river
         if ($img_river_view == "batch" && $album->new_album == false) {
             elgg_create_river_item([
@@ -128,7 +128,7 @@ function image_save_post($access = ACCESS_FRIENDS, $album_guid, $username, $titl
             $album->new_album = false;
             $album->first_upload = true;
 
-            $album_river_view = elgg_get_plugin_setting('album_river_view', 'tidypics');
+            $album_river_view = elgg_get_plugin_setting('album_river_view', $plugin_id, 'tidypics');
             if ($album_river_view != "none") {
                 elgg_create_river_item([
                     'view' => 'river/object/album/create',

@@ -30,9 +30,9 @@ function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user
 					$return['user_email'] = $users[0]->email;
 					$return['auth_token'] = create_user_token($users[0]->username);
 					$return['api_key'] = get_api_key();
-					elgg_set_plugin_user_setting('uid', $fbData['user_profile']['id'], $users[0]->guid);
-					elgg_set_plugin_user_setting('access_token', $fbData['user_profile']['accessToken'], $users[0]->guid);
-					elgg_set_plugin_user_setting('education', $fbData['user_profile']['education'], $users[0]->guid);
+					elgg_set_plugin_user_setting('uid', $fbData['user_profile']['id'], $users[0]->guid, $plugin_id = null);
+					elgg_set_plugin_user_setting('access_token', $fbData['user_profile']['accessToken'], $users[0]->guid, $plugin_id = null);
+					elgg_set_plugin_user_setting('education', $fbData['user_profile']['education'], $users[0]->guid, $plugin_id = null);
 					if(empty($users[0]->email)) {
 						$user = get_entity($users[0]->guid);
 						$user->email = $fbData['user_profile']['email'];
@@ -57,9 +57,9 @@ function login_with_fb($accessToken, $user_id, $profile_name, $user_email, $user
 			$return['user_email'] = $user->email;
 			$return['auth_token'] = create_user_token($user->username);
 			$return['api_key'] = get_api_key();
-			elgg_set_plugin_user_setting('uid', $fbData['user_profile']['id'], $user->guid);
-			elgg_set_plugin_user_setting('access_token', $fbData['user_profile']['accessToken'], $user->guid);
-			elgg_set_plugin_user_setting('education', $fbData['user_profile']['education'],$user->guid);
+			elgg_set_plugin_user_setting('uid', $fbData['user_profile']['id'], $user->guid, $plugin_id = null);
+			elgg_set_plugin_user_setting('access_token', $fbData['user_profile']['accessToken'], $user->guid, $plugin_id = null);
+			elgg_set_plugin_user_setting('education', $fbData['user_profile']['education'],$user->guid, $plugin_id = null);
 		} else {
 			// If the registration was not successful
 			$return['success'] = false;

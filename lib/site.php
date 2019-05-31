@@ -22,7 +22,7 @@ function site_getinfo() {
     $site = elgg_get_config('site');
     $siteinfo['url'] = elgg_get_site_url();
     $siteinfo['sitename'] = $site->name;
-    $siteinfo['logo'] = elgg_get_plugin_setting('ws_get_logo', 'elgg_with_rest_api');
+    $siteinfo['logo'] = elgg_get_plugin_setting('ws_get_logo', $plugin_id, 'elgg_with_rest_api');
     if ($site->description == null) {
         $siteinfo['description'] = '';
     } else {
@@ -79,7 +79,7 @@ function site_getapi() {
 }
 
 function site_get_content($type) {
-	return elgg_get_plugin_setting($type, 'improvement');
+	return elgg_get_plugin_setting($type, $plugin_id, 'improvement');
 }
 
 elgg_ws_expose_function('site.get_content',

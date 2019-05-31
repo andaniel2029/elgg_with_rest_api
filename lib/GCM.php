@@ -52,7 +52,7 @@ class GCM {
 
         if ($message) {
             // include config
-            $GOOGLE_API_KEY = elgg_get_plugin_setting('google_api_key', 'elgg_with_rest_api');
+            $GOOGLE_API_KEY = elgg_get_plugin_setting('google_api_key', $plugin_id, 'elgg_with_rest_api');
 
             // Set POST variables
             $url = 'https://fcm.googleapis.com/fcm/send';
