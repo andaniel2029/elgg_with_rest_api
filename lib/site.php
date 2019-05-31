@@ -36,7 +36,7 @@ function site_getinfo() {
 
 
 function site_get_list_plugin() {
-    $plugins = elgg_get_plugins($status = 'active', $site_guid = null);
+    $plugins = elgg_get_plugins($status = 'active');
     $return = [
         'messages' => false,
         'thewire' => false,
