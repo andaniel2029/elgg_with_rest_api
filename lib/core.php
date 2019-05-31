@@ -756,7 +756,7 @@ function time_ago($time,$granularity=2) {
 function getBatchImages($id, $user_guid) {
 
     // Get images related to this batch
-    $results = elgg_get_entities_from_relationship([
+    $results = elgg_get_entities([
         'relationship' => 'belongs_to_batch',
         'relationship_guid' => $id,
         'inverse_relationship' => true,

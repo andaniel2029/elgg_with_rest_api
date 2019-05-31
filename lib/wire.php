@@ -107,7 +107,7 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
 	if($context == "friends"){
         $timelower = 0;
         $timeupper = 0;
-        $latest_wire = elgg_get_entities_from_relationship([
+        $latest_wire = elgg_get_entities([
             'type'      => 'object',
             'subtype'   => 'thewire',
             'limit'     => $limit,
@@ -192,7 +192,7 @@ function wire_delete($username, $wireid) {
 	$thewire = get_entity($wireid);
 	$return['success'] = false;
 	if ($thewire->getSubtype() == "thewire" && $thewire->canEdit($user->guid)) {
-		$children = elgg_get_entities_from_relationship([
+		$children = elgg_get_entities([
 			'relationship'      => 'parent',
 			'relationship_guid' => $wireid,
 			'inverse_relationship' => true,

@@ -63,7 +63,7 @@ function blog_get_posts($context, $username, $limit = 10, $offset = 0,$group_gui
             'limit' => $limit,
             'offset' => $offset,
         ];
-        $latest_blogs = elgg_get_entities_from_relationship($options);
+        $latest_blogs = elgg_get_entities($options);
     }
 
     if($latest_blogs) {

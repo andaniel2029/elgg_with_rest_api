@@ -52,7 +52,7 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
     } else if ($context == 'member') {
         $dbprefix = elgg_get_config('dbprefix');
 
-        $groups = elgg_get_entities_from_relationship([
+        $groups = elgg_get_entities([
             'type' => 'group',
             'relationship' => 'member',
             'relationship_guid' => $loginUser->guid,
