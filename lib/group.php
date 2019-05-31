@@ -275,7 +275,6 @@ elgg_ws_expose_function('group.get_icon',
  * @throws InvalidParameterException
  */
 function group_join_group($guid) {
-    global $CONFIG;
 
     $user = elgg_get_logged_in_user_entity();
     if (!$user) {
@@ -326,7 +325,7 @@ function group_join_group($guid) {
 
             $owner = $group->getOwnerEntity();
 
-            $url = "{$CONFIG->url}groups/requests/$group->guid";
+            $url = "{_elgg_config()->url}groups/requests/$group->guid";
 
             $subject = elgg_echo('groups:request:subject', [
                 $user->name,
