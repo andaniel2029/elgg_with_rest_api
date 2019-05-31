@@ -307,7 +307,7 @@ function group_join_group($guid) {
         }
 
         if ($join) {
-            if (groups_join_group($group, $user)) {
+            if (ElggGroup::join($group, $user)) {
                 $return['member'] = 'joined';
                 $return['message'] = 'joined';
             } else {
