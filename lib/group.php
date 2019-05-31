@@ -58,7 +58,6 @@ function group_get_list($context,  $limit = 20, $offset = 0, $username, $from_gu
             'relationship_guid' => $loginUser->guid,
             'inverse_relationship' => false,
             'full_view' => false,
-            'joins' => ["JOIN {$dbprefix}groups_entity ge ON e.guid = ge.guid"],
             'order_by' => 'ge.name ASC',
             'distinct' => false,
             'limit' => $limit,
