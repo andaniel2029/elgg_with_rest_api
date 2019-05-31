@@ -619,7 +619,6 @@ function user_search($username, $limit = 20, $offset = 0, $search_name)
     $options = [
         'type' 		=> 'user',
         'full_view' => false,
-        'joins' 	=> ["JOIN {$db_prefix}users_entity u ON e.guid=u.guid"],
         'wheres' 	=> ["(u.name LIKE \"%{$search_name}%\" OR u.username LIKE \"%{$search_name}%\")"],
         'offset' 	=> (int) max(get_input('offset', 0), 0),
         'limit' 	=> (int) max(get_input('limit', 10), 0),
