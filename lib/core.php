@@ -417,14 +417,12 @@ function getRiverActivity($activities, $user, $login_user) {
             $icon_file_name = substr_replace($file_name, 'largethumb', $position, 0);
 
             $image_icon_url = $site_url . 'services/api/rest/json/?method=image.get_post';
-            $image_icon_url = $image_icon_url . '&joindate=' . $image_join_date . '&guid=' . $album_cover->guid
-                . '&name=' . $icon_file_name;
-            $image_icon_url = elgg_format_url($image_icon_url);
+            $image_icon_url = $image_icon_url . '&joindate=' . $image_join_date . '&guid=' . $album_cover->guid . '&name=' . $icon_file_name;
+            $image_icon_url = elgg_view('output/text', $image_icon_url);
 
             $image_url = $site_url . 'services/api/rest/json/?method=image.get_post';
-            $image_url = $image_url . '&joindate=' . $image_join_date . '&guid=' . $album_cover->guid
-                . '&name=' . $file_name;
-            $image_url = elgg_format_url($image_url);
+            $image_url = $image_url . '&joindate=' . $image_join_date . '&guid=' . $album_cover->guid . '&name=' . $file_name;
+            $image_url = elgg_view('output/text', $image_url);
 
             $batch_images[] = createAlbumCoverImage($album_cover, $image_join_date, $image_icon_url, $image_url, $user);
         } else if ($activity->action_type == "friend" && $activity->subtype == ""){
@@ -433,12 +431,12 @@ function getRiverActivity($activities, $user, $login_user) {
             $friendEntity = get_entity($activity->object_guid);
             $entityTxt = $msg . " " .$friendEntity->name;
             $icon_url = getProfileIcon($friendEntity);
-            $icon_url = elgg_format_url($icon_url);
+            $icon_url = elgg_view('output/text', $icon_url);
             $img_url = getProfileIcon($friendEntity, 'master');
             if (strpos($img_url, 'user/defaultmaster.gif') !== false) {
                 $img_url = getProfileIcon($friendEntity, 'large');
             }
-            $img_url = elgg_format_url($img_url);
+            $img_url = elgg_view('output/text', $img_url);
         } else if ($activity->action_type == "update" && $activity->view == 'river/user/default/profileiconupdate') {
             $isObject = true;
             $entityTxt = "has a new avatar";
@@ -476,15 +474,15 @@ function getRiverActivity($activities, $user, $login_user) {
             if ($simpletype == "image") {
                 $activity->type = 'image';
                 $icon_url = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $entity->guid . '&size=largethumb';
-                $icon_url = elgg_format_url($icon_url);
+                $icon_url = elgg_view('output/text', $icon_url);
 
                 $img_url = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $entity->guid . '&size=original';
-                $img_url = elgg_format_url($img_url);
+                $img_url = elgg_view('output/text', $img_url);
             } else {
                 $activity->type = 'download';
-                $icon_url = getProfileIcon($entity, 'large');//elgg_format_url($entity->getIconURL('large'));
+                $icon_url = getProfileIcon($entity, 'large');
                 $img_url = $site_url . 'services/api/rest/json/?method=file.get_post' . '&guid=' . $entity->guid . '&size=' . $entity->originalfilename;
-                $img_url = elgg_format_url($img_url);
+                $img_url = elgg_view('output/text', $img_url);
             }
         } else if ($activity->subtype == "comment" && $activity->action_type == "comment" && $activity->view == 'river/object/comment/create') {
             $isObject = true;
@@ -786,12 +784,12 @@ function getBatchImages($id, $user_guid) {
                 $image_icon_url = $site_url . 'services/api/rest/json/?method=image.get_post';
                 $image_icon_url = $image_icon_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid
                     . '&name=' . $icon_file_name;
-                $icon_url = elgg_format_url($image_icon_url);
+                $icon_url = elgg_view('output/text', $image_icon_url);
 
                 $image_url = $site_url . 'services/api/rest/json/?method=image.get_post';
                 $image_url = $image_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid
                     . '&name=' . $file_name;
-                $img_url = elgg_format_url($image_url);
+                $img_url = elgg_view('output/text', $image_url);
 
                 $image['guid'] = $result->guid;
                 $image['container_guid'] = $result->container_guid;

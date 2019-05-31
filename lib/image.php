@@ -397,11 +397,11 @@ function image_get_photos($context,  $limit = 20, $offset = 0, $username) {
 
             $image_icon_url = $site_url . 'services/api/rest/json/?method=image.get_post';
             $icon_url = $image_icon_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid . '&name=' . $icon_file_name;
-            $icon_url = elgg_format_url($icon_url);
+            $icon_url = elgg_view('output/text', $icon_url);
 
             $image_url = $site_url . 'services/api/rest/json/?method=image.get_post';
             $img_url = $image_url . '&joindate=' . $image_owner_join_date . '&guid=' . $image_owner_guid . '&name=' . $file_name;
-            $img_url = elgg_format_url($img_url);
+            $img_url = elgg_view('output/text', $img_url);
 
             $photo['container_guid'] = $single->container_guid;
             if ($single->title != null) {
