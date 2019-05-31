@@ -702,7 +702,7 @@ function getCommentCount($activity) {
             "subtype" => "thewire",
             "limit" => 0,
         ];
-        $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
+        $comments = get_elgg_comments($options, 'elgg_get_entities');
     } else {
         $comments = elgg_get_entities([
             'type' => 'object',

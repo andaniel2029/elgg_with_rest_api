@@ -88,7 +88,7 @@ function messages_inbox($limit = 20, $offset = 0) {
 		'full_view' => false,
 	];
 	
-	$list = elgg_get_entities_from_metadata($params);
+	$list = elgg_get_entities($params);
 
 	if($list) {
 		foreach($list as $single ) {
@@ -157,7 +157,7 @@ function messages_sent($limit = 10, $offset = 0) {
 		'full_view' => false,
 	];
 	
-	$list = elgg_get_entities_from_metadata($params);
+	$list = elgg_get_entities($params);
 	if($list) {
 		foreach($list as $single ) {
 			$message['guid'] = $single->guid;

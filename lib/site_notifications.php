@@ -49,7 +49,7 @@ function site_notification_count($username) {
     }
 
 	if (elgg_is_active_plugin('site_notifications')) {
-         $return['count'] = elgg_get_entities_from_metadata([
+         $return['count'] = elgg_get_entities([
 				'type' => 'object',
 				'subtype' => 'site_notification',
 				'owner_guid' => $user->guid,

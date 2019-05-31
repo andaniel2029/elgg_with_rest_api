@@ -144,7 +144,7 @@ function wire_get_posts($context, $limit = 20, $offset = 0, $username) {
                 "limit" => 0,
             ];
 
-            $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
+            $comments = get_elgg_comments($options, 'elgg_get_entities');
             if (sizeof($comments) > 0) {
                 $comment_count = sizeof($comments) - 1;
             } else {
@@ -254,7 +254,7 @@ function wire_get_comments($guid, $username, $limit = 20, $offset = 0){
         "offset" => $offset,
     ];
 
-    $comments = get_elgg_comments($options, 'elgg_get_entities_from_metadata');
+    $comments = get_elgg_comments($options, 'elgg_get_entities');
 
     $return = [];
     if($comments){
